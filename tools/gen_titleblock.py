@@ -20,11 +20,16 @@ custom via diagram <properties>: %{techref} %{checked-by} %{approved-by}
 %{doc-type} %{doc-status} %{subtitle} %{doc-id} %{remarks} %{rev-desc}
 %{rev-by} %{rev-appd}.
 """
+import base64
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 NAME = "huchen_iso7200_a3"
-OUT = Path(__file__).resolve().parents[1] / "data" / "titleblocks" / f"{NAME}.titleblock"
+ROOT_DIR = Path(__file__).resolve().parents[1]
+OUT = ROOT_DIR / "data" / "titleblocks" / f"{NAME}.titleblock"
+# 公司 logo(已白邊補至 240:64 格子比例,QET 會拉伸填滿格子)
+LOGO_FILE = ROOT_DIR / "data" / "logos" / "huchen_logo.png"
+LOGO_NAME = "huchen_logo"
 
 # 右側 8 個欄位一律 120px(上下兩層共用同一組 120px 格線,必然對齊);
 # 左區 版次40|日期50|修改內容r100%(吃掉所有剩餘寬)|修改80|核准80
@@ -78,8 +83,9 @@ CELLS = [
     field(3, 9, 1, 2, "圖名 Title", LBL, "left"),
     field(3, 11, 1, 1, "圖幅 Size", LBL, "left"),
     field(3, 12, 1, 1, "頁次 Sheet *", LBL, "left"),
-    # 法定所有者:無標題列,單一格跨滿下層(4 列高)
-    field(3, 5, 4, 2, "虎承科技 Huchen Technology", 14),
+    # 法定所有者:無標題列,單一格跨滿下層(4 列高),放公司 logo
+    # (LOGO: 前綴 → 產生 <logo resource=...> 格)
+    field(3, 5, 4, 2, f"LOGO:{LOGO_NAME}"),
     field(4, 7, 3, 2, "%{doc-id}", 11),
     field(4, 9, 1, 2, "%{title}", 10, "center", "center", "title"),
     field(4, 11, 1, 1, "A3", 10),
@@ -96,20 +102,31 @@ def main() -> None:
     ET.SubElement(root, "information").text = (
         "Huchen ISO 7200 A3 full-width title block, generated from "
         "docs/ISO7200_A3_圖框標題欄範本_4.xlsx by tools/gen_titleblock.py")
-    ET.SubElement(root, "logos")
+    logos = ET.SubElement(root, "logos")
+    logo = ET.SubElement(logos, "logo", {
+        "name": LOGO_NAME, "type": "png", "storage": "base64"})
+    logo.text = base64.b64encode(LOGO_FILE.read_bytes()).decode("ascii")
     grid = ET.SubElement(root, "grid", {"cols": COLS, "rows": ROWS})
 
     for row, col, rowspan, colspan, text, fontsize, align, valign, name in CELLS:
-        f = ET.SubElement(grid, "field", {
-            "row": str(row), "col": str(col),
-            "fontsize": str(fontsize), "align": align, "valign": valign,
-            "displaylabel": "false", "hadjust": "true", "name": name,
-        })
+        if text.startswith("LOGO:"):
+            f = ET.SubElement(grid, "logo", {
+                "row": str(row), "col": str(col),
+                "resource": text[len("LOGO:"):],
+            })
+        else:
+            f = ET.SubElement(grid, "field", {
+                "row": str(row), "col": str(col),
+                "fontsize": str(fontsize), "align": align, "valign": valign,
+                "displaylabel": "false", "hadjust": "true", "name": name,
+            })
         # QET span semantics: number of EXTRA cells covered
         if rowspan > 1:
             f.set("rowspan", str(rowspan - 1))
         if colspan > 1:
             f.set("colspan", str(colspan - 1))
+        if f.tag == "logo":
+            continue
         value = ET.SubElement(f, "value")
         ET.SubElement(value, "translation", {"lang": "en"}).text = text
         label = ET.SubElement(f, "label")

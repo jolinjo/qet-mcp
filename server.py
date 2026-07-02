@@ -26,7 +26,7 @@ from qet_xml import index as elmt_index  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 QET_BINARY = Path(os.environ.get(
-    "QET_BINARY", ROOT.parent / "QET-qeletrotech/build/qelectrotech"))
+    "QET_BINARY", ROOT.parent / "QET-qeletrotech/build/qelectrotech.app/Contents/MacOS/qelectrotech"))
 ELEMENTS_DIR = Path(os.environ.get(
     "QET_ELEMENTS_DIR", ROOT.parent / "QET-qeletrotech/elements"))
 

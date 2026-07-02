@@ -8,6 +8,11 @@
 
 ---
 
+> **畫正式電路圖前,必讀
+> [QET繪圖規範_IEC_AI執行版.md](QET繪圖規範_IEC_AI執行版.md)**:
+> 元件代號(IEC 81346)、導線顏色/線號(IEC 60204-1)、交互參照、
+> 安全迴路、文件識別號、圖框規範 —— 公司內規,MUST 級遵守。
+
 ## 1. 黃金工作流
 
 ```text
@@ -127,7 +132,12 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 - **改了 server.py 要使用者在 /mcp reconnect(或重啟 Claude Code)才生效**;
   qet_xml 的修改則腳本立即可用(server 內建索引/資料快取除外)。
 - 檔案優先:MCP 工具每次呼叫 open→mutate→save;GUI 不會自動 reload,
-  給使用者看要重開檔(`build/qelectrotech <file>`)。
+  給使用者看要重開檔。QET 執行檔在
+  `build/qelectrotech.app/Contents/MacOS/qelectrotech`(.app bundle,
+  0.100.12 起);offscreen 外掛由 CMake POST_BUILD 自動複製進 bundle
+  (0.100.14),缺它 --cli-* 會起不來。
+- 標題欄 logo:點陣圖會被拉伸填滿格子,嵌入前先用 sips 白邊補到格子
+  比例;JPEG 經 sips 轉檔會色偏(粉紫),**來源用 PNG**。
 - QET GUI 用 pkill 關閉是安全的(0.100.4 起 SysV 單一實例鎖可自動恢復)。
 - 元件索引快取在 `.cache/elements_index.json`,元件庫變動自動重建。
 - commit 一律中文說明;QET fork 的 commit 另需 CMakeLists patch 版本 +1。
