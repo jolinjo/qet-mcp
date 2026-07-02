@@ -3,6 +3,11 @@
 讓 Claude(或任何 MCP client)透過工具鏈操控 [QElectroTech](https://qelectrotech.org/)(QET)
 產生與編輯電氣圖(.qet 專案檔)。
 
+> **🤖 給 AI:開始任何繪圖工作前,先讀 [docs/AI-GUIDE.md](docs/AI-GUIDE.md)。**
+> 那裡有工具目錄、黃金工作流、佈局規範與實戰驗證過的陷阱清單;
+> 照著做可省下大量工具往返。新增功能或驗證新元件時,須同步更新該文件
+> (維護規約見文件開頭)。
+
 ## 核心原則
 
 **QET 本體改得越少越好,智慧全部放在外部工具鏈** —— QET fork 只「開洞」,

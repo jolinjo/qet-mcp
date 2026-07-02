@@ -218,7 +218,8 @@ def tool_place_element(elmt_path: str, x: float, y: float, label: str = "",
 
 def tool_draw_conductor(from_element: str, from_terminal: str,
                         to_element: str, to_terminal: str, num: str = "",
-                        color: str = "", folio: int = 0) -> dict:
+                        color: str = "", path: "list | None" = None,
+                        folio: int = 0) -> dict:
     prj = _project()
     d = prj.diagram(folio)
     a = _find_instance(d, from_element).terminal(from_terminal)
@@ -226,7 +227,8 @@ def tool_draw_conductor(from_element: str, from_terminal: str,
     props = {"num": num}
     if color:
         props["color"] = color
-    d.connect(a, b, **props)
+    route = [(seg[0], float(seg[1])) for seg in path] if path else None
+    d.connect(a, b, path=route, **props)
     _save(prj)
     return {"from": {"element": a.element_uuid, "terminal": a.terminal.uuid},
             "to": {"element": b.element_uuid, "terminal": b.terminal.uuid},
@@ -319,9 +321,18 @@ TOOLS = {
         tool_draw_conductor, "Connect two element terminals with a "
         "conductor. Elements are referenced by label (e.g. '-K1') or uuid; "
         "terminals by name, or by numeric index for unnamed terminals "
-        "(see qet_describe_element). Routing is automatic.",
+        "(see qet_describe_element). Routing is automatic unless 'path' "
+        "gives explicit manhattan segments from terminal1, e.g. "
+        "[[\"v\",20],[\"h\",-130],[\"v\",39]] — segments must sum to the "
+        "terminal offset (1px tolerance) or QET falls back to autoroute. "
+        "Use paths when several same-height conductors would overlap "
+        "(phase swaps, parallel feeders).",
         _schema({"from_element": S, "from_terminal": S, "to_element": S,
-                 "to_terminal": S, "num": S, "color": S, "folio": I},
+                 "to_terminal": S, "num": S, "color": S,
+                 "path": {"type": "array",
+                          "items": {"type": "array",
+                                    "prefixItems": [S, N]}},
+                 "folio": I},
                 ["from_element", "from_terminal", "to_element",
                  "to_terminal"])),
     "qet_list_content": (
