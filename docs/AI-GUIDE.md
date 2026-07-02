@@ -110,8 +110,10 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
   %{checked-by} %{approved-by} %{doc-type} %{doc-status} %{subtitle}
   %{doc-id} %{remarks} %{rev-desc} %{rev-by} %{rev-appd}`。
 - **排版為角落式**(xlsx sheet1):整組 180mm 靠右下,修訂表疊於標題欄
-  上方;grid col0 為 `r100%` 填充欄且**不放任何 field**(EmptyCell 不畫
-  線)。QET fork ≥0.100.11 外框只框非空格聯集,左側完全隱形。
+  上方;grid col0 為 `r100%` 填充欄,**必須放一個跨全高的空值 field**
+  (EmptyCell 完全不畫線會讓頁框破口;folio 渲染沒有帶外框,收邊全靠
+  cell 自己的邊框)。左側呈現為封閉空白面板 —— QET「標題欄=整條帶」
+  模型的必然取捨,L 型繪圖區不支援。
 - **格式陷阱(實戰)**:
   - `rowspan`/`colspan` 是「**額外**跨的格數」(colspan="1"=佔 2 格,
     titleblocktemplate.cpp:1202);產生器 API 用總格數、輸出時 -1。

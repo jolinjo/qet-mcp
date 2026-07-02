@@ -2,6 +2,14 @@
   <information>Huchen ISO 7200 A3 title block, generated from docs/ISO7200_A3_圖框標題欄範本_4.xlsx by tools/gen_titleblock.py</information>
   <logos />
   <grid cols="r100%;64;132;64;132;68;64;32;36;28;100" rows="24;16;16;16;16;16;12;20;12;20;12;28;12;20;12;20;12;20">
+    <field row="0" col="0" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="17">
+      <value>
+        <translation lang="en" />
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
     <field row="0" col="1" fontsize="5" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">版次 Rev.</translation>

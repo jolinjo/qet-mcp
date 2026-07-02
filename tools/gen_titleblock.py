@@ -41,6 +41,11 @@ def field(row, col, rowspan, colspan, text, fontsize=VAL, align="center",
 
 
 CELLS = [
+    # ── 左側填充:單一空白格跨全高,畫出邊框讓頁框閉合 ──────────
+    # (QET 對 EmptyCell 完全不畫線,folio 渲染也沒有帶外框,
+    #  故需以實體空 field 收邊)
+    field(0, 0, 18, 1, ""),
+
     # ── 修訂記錄表(r0 表頭 + r1 現行版次 + r2-r5 留白)────────
     field(0, 1, 1, 1, "版次 Rev.", LBL),
     field(0, 2, 1, 1, "日期 Date", LBL),
