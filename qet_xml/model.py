@@ -155,19 +155,32 @@ class Conductor:
         "displaytext": "1", "x": "0", "y": "0", "freezeLabel": "false",
     }
 
-    def __init__(self, t1: TerminalRef, t2: TerminalRef, **props: str):
+    def __init__(self, t1: TerminalRef, t2: TerminalRef,
+                 path: "list[tuple[str, float]] | None" = None,
+                 **props: str):
         self.element1, self.terminal1 = t1.element_uuid, t1.terminal.uuid
         self.element2, self.terminal2 = t2.element_uuid, t2.terminal.uuid
+        # optional explicit manhattan route from t1 to t2:
+        # [("v", 20), ("h", -130), ("v", 39)]  (must sum to the terminal
+        # delta within 1px, else QET falls back to autorouting)
+        self.path = path
         self.props = {**self.DEFAULTS, **{k: str(v) for k, v in props.items()}}
 
     def to_xml(self) -> ET.Element:
-        # Deliberately NO <segment> children: QET autoroutes on load
-        # (conductor.cpp:1147).
-        return ET.Element("conductor", {
+        # Without explicit path we emit NO <segment> children: QET
+        # autoroutes on load (conductor.cpp:1147).
+        e = ET.Element("conductor", {
             "element1": self.element1, "terminal1": self.terminal1,
             "element2": self.element2, "terminal2": self.terminal2,
             **self.props,
         })
+        for orient, length in (self.path or []):
+            ET.SubElement(e, "segment", {
+                "orientation": ("horizontal" if orient == "h"
+                                else "vertical"),
+                "length": _num(length),
+            })
+        return e
 
 
 class Diagram:
@@ -194,8 +207,10 @@ class Diagram:
         self.elements.append(inst)
         return inst
 
-    def connect(self, t1: TerminalRef, t2: TerminalRef, **props: str) -> Conductor:
-        c = Conductor(t1, t2, **props)
+    def connect(self, t1: TerminalRef, t2: TerminalRef,
+                path: "list[tuple[str, float]] | None" = None,
+                **props: str) -> Conductor:
+        c = Conductor(t1, t2, path=path, **props)
         self.conductors.append(c)
         return c
 

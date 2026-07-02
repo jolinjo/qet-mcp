@@ -51,8 +51,8 @@
   "aux_contact_nc": {
     "zh": "輔助常閉觸點",
     "path": "10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/con_simple_nf.elmt",
-    "terminals": "無名 2 端子(依 con_simple 慣例 idx0 上/idx1 下,放置前建議 describe 確認)",
-    "verified": false
+    "terminals": "無名 2 端子,idx0 上/idx1 下(已驗證)",
+    "verified": true
   },
   "contactor_coil": {
     "zh": "接觸器線圈",
