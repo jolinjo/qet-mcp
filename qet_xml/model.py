@@ -55,6 +55,10 @@ class ElementDefinition:
             for t in dom.iter("terminal")
             if t.get("uuid")  # definition-level terminals carry uuids
         ]
+        # dynamic text templates (e.g. the label placeholder); QET only
+        # renders instance-level <dynamic_texts>, so instances must
+        # materialize these (see ElementInstance.to_xml)
+        self.dynamic_texts: list[ET.Element] = list(dom.iter("dynamic_text"))
 
     @classmethod
     def load(cls, path: str | Path, embed_path: str | None = None) -> "ElementDefinition":
@@ -89,16 +93,40 @@ class TerminalRef:
 class ElementInstance:
     def __init__(self, definition: ElementDefinition, x: float, y: float,
                  label: str = "", orientation: int = 0, prefix: str = "",
-                 uuid: str | None = None):
+                 uuid: str | None = None,
+                 dynamic_texts_dom: ET.Element | None = None):
         self.definition = definition
         self.uuid = uuid or _new_uuid()
         self.x, self.y = x, y
         self.label = label
         self.orientation = orientation
         self.prefix = prefix
+        # raw <dynamic_texts> read from an existing file (preserved verbatim
+        # so user-moved texts survive a round-trip); None = generate from
+        # the definition's templates
+        self.dynamic_texts_dom = dynamic_texts_dom
 
     def terminal(self, key: str | int) -> TerminalRef:
         return TerminalRef(self.uuid, self.definition.terminal(key))
+
+    def _materialize_dynamic_texts(self) -> ET.Element:
+        """Instantiate the definition's dynamic_text templates.
+
+        QET only renders instance-level <dynamic_texts>; without this the
+        label would be stored but never displayed.
+        """
+        wrapper = ET.Element("dynamic_texts")
+        for template in self.definition.dynamic_texts:
+            t = ET.SubElement(wrapper, "dynamic_elmt_text",
+                              dict(template.attrib))
+            t.set("uuid", _new_uuid())
+            info_name = template.findtext("info_name", "")
+            text = ET.SubElement(t, "text")
+            text.text = self.label if info_name == "label" else \
+                template.findtext("text", "")
+            if info_name:
+                ET.SubElement(t, "info_name").text = info_name
+        return wrapper
 
     def to_xml(self) -> ET.Element:
         e = ET.Element("element", {
@@ -113,6 +141,10 @@ class ElementInstance:
             info = ET.SubElement(infos, "elementInformation",
                                  {"show": "1", "name": "label"})
             info.text = self.label
+        if self.dynamic_texts_dom is not None:
+            e.append(copy.deepcopy(self.dynamic_texts_dom))
+        else:
+            e.append(self._materialize_dynamic_texts())
         return e
 
 
@@ -257,6 +289,7 @@ class QetProject:
             for info in edom.iter("elementInformation"):
                 if info.get("name") == "label":
                     label = info.text or ""
+            dtexts = edom.find("dynamic_texts")
             d.elements.append(ElementInstance(
                 definition,
                 x=float(edom.get("x", "0")), y=float(edom.get("y", "0")),
@@ -264,6 +297,8 @@ class QetProject:
                 orientation=int(edom.get("orientation", "0")),
                 prefix=edom.get("prefix", ""),
                 uuid=edom.get("uuid"),
+                dynamic_texts_dom=(copy.deepcopy(dtexts)
+                                   if dtexts is not None else None),
             ))
 
         conductors = ddom.find("conductors")
