@@ -1,7 +1,7 @@
 <titleblocktemplate name="huchen_iso7200_a3">
   <information>Huchen ISO 7200 A3 title block, generated from docs/ISO7200_A3_圖框標題欄範本_4.xlsx by tools/gen_titleblock.py</information>
   <logos />
-  <grid cols="48;100;r100%;64;68;196;64;132;68;96;36;128" rows="16;16;16;16;16;16;16;16;16;16;16;16;16;16">
+  <grid cols="48;100;r100%;64;68;196;64;132;68;96;36;128" rows="12;20;12;20;12;28;12;20;12;20;12;20">
     <field row="0" col="0" fontsize="5" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">版次 Rev.</translation>
@@ -42,7 +42,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="2" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="2" col="0" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">%{indexrev}</translation>
       </value>
@@ -50,7 +50,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="2" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="2" col="1" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">%{date}</translation>
       </value>
@@ -58,7 +58,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="2" col="2" fontsize="7" align="left" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="2" col="2" fontsize="8" align="left" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">%{rev-desc}</translation>
       </value>
@@ -66,7 +66,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="2" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="2" col="3" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">%{rev-by}</translation>
       </value>
@@ -74,7 +74,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="2" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="2" col="4" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en">%{rev-appd}</translation>
       </value>
@@ -82,7 +82,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="4" col="0" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -90,7 +90,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="4" col="1" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -98,7 +98,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="2" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="4" col="2" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -106,7 +106,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="4" col="3" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -114,7 +114,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="4" col="4" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -122,7 +122,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="6" col="0" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -130,7 +130,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="6" col="1" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -138,7 +138,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="2" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="6" col="2" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -146,7 +146,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="6" col="3" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -154,7 +154,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="6" col="4" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -162,7 +162,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="8" col="0" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -170,7 +170,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="8" col="1" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -178,7 +178,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="2" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="8" col="2" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -186,7 +186,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="8" col="3" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -194,7 +194,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="8" col="4" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -202,7 +202,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="10" col="0" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -210,7 +210,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="10" col="1" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -218,7 +218,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="2" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="10" col="2" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -226,7 +226,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="10" col="3" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -234,47 +234,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
-      <value>
-        <translation lang="en" />
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="12" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
-      <value>
-        <translation lang="en" />
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="12" col="1" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
-      <value>
-        <translation lang="en" />
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="12" col="2" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
-      <value>
-        <translation lang="en" />
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="12" col="3" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
-      <value>
-        <translation lang="en" />
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="12" col="4" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
+    <field row="10" col="4" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1">
       <value>
         <translation lang="en" />
       </value>
@@ -314,7 +274,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="1" col="5" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="">
+    <field row="1" col="5" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">%{techref}</translation>
       </value>
@@ -322,7 +282,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="1" col="6" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="author" colspan="1">
+    <field row="1" col="6" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="author" colspan="1">
       <value>
         <translation lang="en">%{author}</translation>
       </value>
@@ -330,7 +290,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="1" col="8" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="1" col="8" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">%{checked-by}</translation>
       </value>
@@ -338,7 +298,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="1" col="10" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="1" col="10" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">%{approved-by}</translation>
       </value>
@@ -378,7 +338,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="5" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="">
+    <field row="3" col="5" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">%{doc-type}</translation>
       </value>
@@ -386,7 +346,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="6" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="3" col="6" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">%{doc-status}</translation>
       </value>
@@ -394,7 +354,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="8" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="date" colspan="1">
+    <field row="3" col="8" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="date" colspan="1">
       <value>
         <translation lang="en">%{date}</translation>
       </value>
@@ -402,7 +362,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="10" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="3" col="10" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">%{indexrev}</translation>
       </value>
@@ -426,7 +386,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="5" col="5" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="3" colspan="1">
+    <field row="5" col="5" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="2" colspan="1">
       <value>
         <translation lang="en">虎承科技 Huchen Technology</translation>
       </value>
@@ -434,7 +394,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="5" col="7" fontsize="12" align="center" valign="center" displaylabel="false" hadjust="true" name="title" rowspan="1" colspan="4">
+    <field row="5" col="7" fontsize="12" align="center" valign="center" displaylabel="false" hadjust="true" name="title" colspan="4">
       <value>
         <translation lang="en">%{title}</translation>
       </value>
@@ -442,7 +402,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="7" col="7" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="4">
+    <field row="6" col="7" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="4">
       <value>
         <translation lang="en">補充圖名 Supplementary title</translation>
       </value>
@@ -450,7 +410,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="8" col="7" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="4">
+    <field row="7" col="7" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="4">
       <value>
         <translation lang="en">%{subtitle}</translation>
       </value>
@@ -458,7 +418,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="9" col="5" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="3">
+    <field row="8" col="5" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="3">
       <value>
         <translation lang="en">文件識別號 Identification number *</translation>
       </value>
@@ -466,7 +426,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="9" col="9" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="8" col="9" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">頁次 Sheet *</translation>
       </value>
@@ -474,7 +434,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="9" col="11" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="">
+    <field row="8" col="11" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">圖幅 Size</translation>
       </value>
@@ -482,7 +442,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="5" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="3" colspan="3">
+    <field row="9" col="5" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="2" colspan="3">
       <value>
         <translation lang="en">%{doc-id}</translation>
       </value>
@@ -490,7 +450,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="9" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="folio" colspan="1">
+    <field row="9" col="9" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="folio" colspan="1">
       <value>
         <translation lang="en">%{folio}</translation>
       </value>
@@ -498,7 +458,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="10" col="11" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="">
+    <field row="9" col="11" fontsize="9" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">A3</translation>
       </value>
@@ -506,7 +466,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="11" col="9" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="2">
+    <field row="10" col="9" fontsize="5" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="2">
       <value>
         <translation lang="en">備註 Remarks</translation>
       </value>
@@ -514,7 +474,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="12" col="9" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="1" colspan="2">
+    <field row="11" col="9" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="2">
       <value>
         <translation lang="en">%{remarks}</translation>
       </value>

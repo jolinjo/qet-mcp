@@ -23,9 +23,11 @@ OUT = Path(__file__).resolve().parents[1] / "data" / "titleblocks" / f"{NAME}.ti
 # rev table: 版次12mm 日期25mm 內容=flex 修改16mm 核准17mm
 # title block (180mm): boundaries at 0,49,65,98,115,139,148,180 mm
 COLS = "48;100;r100%;64;68;196;64;132;68;96;36;128"
-ROWS = ";".join(["16"] * 14)
+# label rows 12px (3mm) / value rows 20px (5mm) / title row 28px (7mm);
+# total 200px = 50mm — mirrors the xlsx (label rows short, values tall)
+ROWS = "12;20;12;20;12;28;12;20;12;20;12;20"
 
-LBL, VAL = 5, 8   # font sizes
+LBL, VAL = 5, 9   # font sizes
 
 
 def field(row, col, rowspan, colspan, text, fontsize=VAL, align="center",
@@ -34,20 +36,20 @@ def field(row, col, rowspan, colspan, text, fontsize=VAL, align="center",
 
 
 CELLS = [
-    # ── 修訂記錄表(左,cols 0-4;每格跨 2 列)──────────────────
+    # ── 修訂記錄表(左,cols 0-4;每格跨 2 列 = 標籤列+值列)────
     field(0, 0, 2, 1, "版次 Rev.", LBL),
     field(0, 1, 2, 1, "日期 Date", LBL),
     field(0, 2, 2, 1, "修改內容 Description of revision", LBL),
     field(0, 3, 2, 1, "修改 By", LBL),
     field(0, 4, 2, 1, "核准 Appd", LBL),
     # 第一列修訂 = 目前版次(變數);其餘留白待手填
-    field(2, 0, 2, 1, "%{indexrev}", 7),
-    field(2, 1, 2, 1, "%{date}", 7),
-    field(2, 2, 2, 1, "%{rev-desc}", 7, "left"),
-    field(2, 3, 2, 1, "%{rev-by}", 7),
-    field(2, 4, 2, 1, "%{rev-appd}", 7),
-    *[field(r, c, 2, 1, "", 7)
-      for r in (4, 6, 8, 10, 12) for c in range(5)],
+    field(2, 0, 2, 1, "%{indexrev}", 8),
+    field(2, 1, 2, 1, "%{date}", 8),
+    field(2, 2, 2, 1, "%{rev-desc}", 8, "left"),
+    field(2, 3, 2, 1, "%{rev-by}", 8),
+    field(2, 4, 2, 1, "%{rev-appd}", 8),
+    *[field(r, c, 2, 1, "", 8)
+      for r in (4, 6, 8, 10) for c in range(5)],
 
     # ── ISO 7200 標題欄(右,cols 5-11)────────────────────────
     # 帶 1:簽核(49|49|41|41 mm)
@@ -68,22 +70,22 @@ CELLS = [
     field(3, 6, 1, 2, "%{doc-status}"),
     field(3, 8, 1, 2, "%{date}", VAL, "center", "center", "date"),
     field(3, 10, 1, 2, "%{indexrev}"),
-    # 帶 3:所有者(65)+ 圖名(115)
+    # 帶 3:所有者(65)+ 圖名(115);圖名列特高(28px)
     field(4, 5, 1, 2, "法定所有者 Legal owner *", LBL, "left"),
     field(4, 7, 1, 5, "圖名 Title", LBL, "left"),
-    field(5, 5, 4, 2, "虎承科技 Huchen Technology", 11),
-    field(5, 7, 2, 5, "%{title}", 12, "center", "center", "title"),
-    field(7, 7, 1, 5, "補充圖名 Supplementary title", LBL, "left"),
-    field(8, 7, 1, 5, "%{subtitle}"),
+    field(5, 5, 3, 2, "虎承科技 Huchen Technology", 11),
+    field(5, 7, 1, 5, "%{title}", 12, "center", "center", "title"),
+    field(6, 7, 1, 5, "補充圖名 Supplementary title", LBL, "left"),
+    field(7, 7, 1, 5, "%{subtitle}"),
     # 帶 4:識別號(115)+ 頁次(33)+ 圖幅(32)+ 備註
-    field(9, 5, 1, 4, "文件識別號 Identification number *", LBL, "left"),
-    field(9, 9, 1, 2, "頁次 Sheet *", LBL, "left"),
-    field(9, 11, 1, 1, "圖幅 Size", LBL, "left"),
-    field(10, 5, 4, 4, "%{doc-id}", 11),
-    field(10, 9, 1, 2, "%{folio}", VAL, "center", "center", "folio"),
-    field(10, 11, 1, 1, "A3"),
-    field(11, 9, 1, 3, "備註 Remarks", LBL, "left"),
-    field(12, 9, 2, 3, "%{remarks}", 7),
+    field(8, 5, 1, 4, "文件識別號 Identification number *", LBL, "left"),
+    field(8, 9, 1, 2, "頁次 Sheet *", LBL, "left"),
+    field(8, 11, 1, 1, "圖幅 Size", LBL, "left"),
+    field(9, 5, 3, 4, "%{doc-id}", 11),
+    field(9, 9, 1, 2, "%{folio}", VAL, "center", "center", "folio"),
+    field(9, 11, 1, 1, "A3"),
+    field(10, 9, 1, 3, "備註 Remarks", LBL, "left"),
+    field(11, 9, 1, 3, "%{remarks}", 8),
 ]
 
 
