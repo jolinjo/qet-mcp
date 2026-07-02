@@ -26,8 +26,8 @@ Claude Code / Claude Desktop
 | 階段 | 內容 | 狀態 |
 | --- | --- | --- |
 | M0 | 讀懂 QET 核心類別與 XML 序列化,產出 schema 規格書 + walking skeleton | ✅ 完成 |
-| M1 | qet-xml:Python 物件模型,round-trip golden 測試 | 進行中 |
-| M2 | qet-cli:headless render / validate / netlist(唯一碰 C++ 的部分) | — |
+| M1 | qet-xml:Python 物件模型,round-trip golden 測試 | ✅ 完成 |
+| M2 | qet-cli:headless render / validate / netlist(QET fork 0.100.6 內建 `--cli-*`) | ✅ 初版完成 |
 | M3 | MCP server:低階工具 + 高階語意層(範本電路、IEC 規則檢查) | — |
 | M4 | QET GUI 薄 RPC(reload / gotoElement),可延後 | — |
 
