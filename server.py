@@ -411,6 +411,55 @@ def tool_check_iec_compliance(folio: int = 0) -> dict:
             "counts": levels, "findings": findings}
 
 
+# --------------------------------------------------------------------------- #
+# BOM
+# --------------------------------------------------------------------------- #
+
+def _def_names(definition: ElementDefinition) -> "dict[str, str]":
+    return {n.get("lang", "?"): (n.text or "")
+            for n in definition.dom.iter("name")}
+
+
+def tool_generate_bom(all_folios: bool = True, folio: int = 0) -> dict:
+    """Bill of materials: one line per designation = one physical device.
+
+    Cross-referenced parts sharing a designation (a contactor's poles +
+    coil all -KM1) are the SAME device, so grouping is by designation, not
+    by symbol type. 'parts' lists the symbols used for that device.
+    Un-labelled elements (annotations) are excluded.
+    """
+    prj = _project()
+    diagrams = prj.diagrams if all_folios else [prj.diagram(folio)]
+    by_desig: "dict[str, dict]" = {}
+    unlabelled = 0
+    for d in diagrams:
+        for e in d.elements:
+            if not e.label:
+                unlabelled += 1
+                continue
+            names = _def_names(e.definition)
+            part = names.get("zh") or names.get("en") \
+                or e.definition.embed_path.rsplit("/", 1)[-1]
+            g = by_desig.setdefault(e.label, {"designation": e.label,
+                                              "parts": []})
+            if part not in g["parts"]:
+                g["parts"].append(part)
+
+    def sort_key(desig: str):
+        m = re.match(r"^-?([A-Z]+)(\d+)", desig)
+        return (m.group(1), int(m.group(2))) if m else (desig, 0)
+
+    bom = []
+    for i, desig in enumerate(sorted(by_desig, key=sort_key), 1):
+        g = by_desig[desig]
+        bom.append({
+            "item": i, "designation": desig, "qty": 1,
+            "name": " / ".join(g["parts"]),   # symbol(s) used; fill spec in &EPB
+            "parts": g["parts"],
+        })
+    return {"bom": bom, "devices": len(bom), "unlabelled": unlabelled}
+
+
 def _schema(props: dict, required: "list[str]") -> dict:
     return {"type": "object", "properties": props, "required": required}
 
@@ -511,6 +560,12 @@ TOOLS = {
         "connectivity). Returns findings with level MUST/SHOULD; check "
         "wiring by rules instead of by eye.",
         _schema({"folio": I}, [])),
+    "qet_generate_bom": (
+        tool_generate_bom, "Bill of materials: group placed elements by "
+        "type with their designations and quantity (cross-referenced parts "
+        "sharing a designation count as one device). Spans all folios by "
+        "default.",
+        _schema({"all_folios": {"type": "boolean"}, "folio": I}, [])),
 }
 
 
