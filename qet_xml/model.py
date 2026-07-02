@@ -323,6 +323,10 @@ class QetProject:
             c.terminal1 = cdom.get("terminal1", "")
             c.element2 = cdom.get("element2", "")
             c.terminal2 = cdom.get("terminal2", "")
+            segs = [("h" if s.get("orientation") == "horizontal" else "v",
+                     float(s.get("length", "0")))
+                    for s in cdom.findall("segment")]
+            c.path = segs or None            # preserve explicit routing
             c.props = {k: v for k, v in cdom.attrib.items()
                        if k not in ("element1", "terminal1",
                                     "element2", "terminal2")}
