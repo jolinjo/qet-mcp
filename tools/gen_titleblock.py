@@ -33,7 +33,7 @@ COLS = "40;40;r100%;80;80;" + ";".join(["120"] * 8)
 # = 表頭+6 列修訂記錄(7 x 16)
 ROWS = ";".join(["16"] * 7)   # 7 x 16 px = 112 px
 
-LBL = 7   # label font (spec: 標籤 7 pt)
+LBL = 8   # label font
 
 
 def field(row, col, rowspan, colspan, text, fontsize=10, align="center",
