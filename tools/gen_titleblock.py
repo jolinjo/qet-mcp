@@ -74,12 +74,12 @@ CELLS = [
     field(1, 12, 2, 1, "%{date}", 10, "center", "center", "date"),
 
     # ── 下層 960px:240|240|240|120|120(同一組 120px 格線)────
-    field(3, 5, 1, 2, "法定所有者 Legal owner *", LBL, "left"),
     field(3, 7, 1, 2, "文件識別號 Identification number *", LBL, "left"),
     field(3, 9, 1, 2, "圖名 Title", LBL, "left"),
     field(3, 11, 1, 1, "圖幅 Size", LBL, "left"),
     field(3, 12, 1, 1, "頁次 Sheet *", LBL, "left"),
-    field(4, 5, 3, 2, "虎承科技 Huchen Technology", 14),
+    # 法定所有者:無標題列,單一格跨滿下層(4 列高)
+    field(3, 5, 4, 2, "虎承科技 Huchen Technology", 14),
     field(4, 7, 3, 2, "%{doc-id}", 11),
     field(4, 9, 1, 2, "%{title}", 10, "center", "center", "title"),
     field(4, 11, 1, 1, "A3", 10),

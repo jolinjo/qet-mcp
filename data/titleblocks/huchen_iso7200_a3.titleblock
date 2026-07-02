@@ -410,14 +410,6 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="5" fontsize="8" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
-      <value>
-        <translation lang="en">法定所有者 Legal owner *</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
     <field row="3" col="7" fontsize="8" align="left" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
       <value>
         <translation lang="en">文件識別號 Identification number *</translation>
@@ -450,7 +442,7 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="5" fontsize="14" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="2" colspan="1">
+    <field row="3" col="5" fontsize="14" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="3" colspan="1">
       <value>
         <translation lang="en">虎承科技 Huchen Technology</translation>
       </value>
