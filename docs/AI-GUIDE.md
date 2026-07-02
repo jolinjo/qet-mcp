@@ -47,6 +47,12 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_place_element(elmt_path, x, y, label, orientation, folio)` | 回實例 uuid + 端子表 |
 | `qet_draw_conductor(from_element, from_terminal, to_element, to_terminal, num, color, path, folio)` | 元件用 label 或 uuid;端子用名字,**無名端子用數字索引字串**("0"/"1");`path` 見 §4 |
 | `qet_list_content(folio)` | 列出實例與導線 |
+| `qet_set_label(element, label)` | 改元件代號(element 用現 label 或 uuid) |
+| `qet_move_element(element, x, y)` | 移動元件 |
+| `qet_rotate_element(element, orientation)` | 旋轉(0/1/2/3=0/90/180/270°) |
+| `qet_delete_element(element)` | 刪元件 + 其相連導線 |
+| `qet_add_diagram(title)` | 加一頁 A3 folio |
+| `qet_auto_designate(prefix_map, only_unlabelled)` | 依類別字母(元件 prefix)自動配 IEC 81346 代號;預設只編無代號者,不破壞交互參照 |
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
 | `qet_netlist()` | 端子級連線 JSON,查線用 |
 | `qet_validate()` | 真 QET 引擎載入檢查 |

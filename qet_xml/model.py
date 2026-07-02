@@ -118,6 +118,12 @@ class ElementInstance:
     def terminal(self, key: str | int) -> TerminalRef:
         return TerminalRef(self.uuid, self.definition.terminal(key))
 
+    def set_label(self, label: str) -> None:
+        """Change the designation; drop any preserved dynamic-text DOM so
+        the label is re-materialized (otherwise the old text would show)."""
+        self.label = label
+        self.dynamic_texts_dom = None
+
     def _materialize_dynamic_texts(self) -> ET.Element:
         """Instantiate the definition's dynamic_text templates.
 
@@ -240,6 +246,15 @@ class Diagram:
         c = Conductor(t1, t2, path=path, **props)
         self.conductors.append(c)
         return c
+
+    def remove_element(self, inst: ElementInstance) -> int:
+        """Remove an element and any conductor attached to it.
+        Returns the number of conductors also removed."""
+        self.elements.remove(inst)
+        before = len(self.conductors)
+        self.conductors = [c for c in self.conductors
+                           if inst.uuid not in (c.element1, c.element2)]
+        return before - len(self.conductors)
 
     # -- serialization ------------------------------------------------------
     def to_xml(self) -> ET.Element:

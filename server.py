@@ -239,6 +239,89 @@ def tool_draw_conductor(from_element: str, from_terminal: str,
             "num": num}
 
 
+def tool_set_label(element: str, label: str, folio: int = 0) -> dict:
+    prj = _project()
+    inst = _find_instance(prj.diagram(folio), element)
+    old = inst.label
+    inst.set_label(label)
+    _save(prj)
+    return {"uuid": inst.uuid, "old_label": old, "label": label}
+
+
+def tool_move_element(element: str, x: float, y: float,
+                      folio: int = 0) -> dict:
+    prj = _project()
+    inst = _find_instance(prj.diagram(folio), element)
+    inst.x, inst.y = x, y
+    _save(prj)
+    return {"uuid": inst.uuid, "label": inst.label, "x": x, "y": y}
+
+
+def tool_rotate_element(element: str, orientation: int,
+                        folio: int = 0) -> dict:
+    prj = _project()
+    inst = _find_instance(prj.diagram(folio), element)
+    inst.orientation = orientation % 4
+    _save(prj)
+    return {"uuid": inst.uuid, "label": inst.label,
+            "orientation": inst.orientation}
+
+
+def tool_delete_element(element: str, folio: int = 0) -> dict:
+    prj = _project()
+    d = prj.diagram(folio)
+    inst = _find_instance(d, element)
+    removed = d.remove_element(inst)
+    _save(prj)
+    return {"deleted": inst.label or inst.uuid,
+            "conductors_removed": removed}
+
+
+def tool_add_diagram(title: str = "") -> dict:
+    prj = _project()
+    d = prj.add_diagram(title)
+    from qet_xml.model import FOLIO_A3_LANDSCAPE
+    d.attrs.update(FOLIO_A3_LANDSCAPE)
+    _save(prj)
+    return {"folio_index": len(prj.diagrams) - 1, "title": title,
+            "folios": len(prj.diagrams)}
+
+
+def tool_auto_designate(prefix_map: "dict | None" = None,
+                        only_unlabelled: bool = True,
+                        folio: int = 0) -> dict:
+    """Assign IEC 81346 designations (-<letter><seq>) by category.
+
+    Conservative by default: only numbers un-labelled elements, so existing
+    cross-references (parts already sharing -KM1) are never broken. The
+    class letter comes from the element's prefix (or prefix_map override
+    keyed by embed path). Sequence continues past designations already in
+    use for that letter.
+    """
+    prefix_map = prefix_map or {}
+    prj = _project()
+    d = prj.diagram(folio)
+    counters: "dict[str, int]" = {}
+    for e in d.elements:
+        m = re.match(r"^-([A-Z]+)(\d+)", e.label or "")
+        if m:
+            counters[m.group(1)] = max(counters.get(m.group(1), 0),
+                                       int(m.group(2)))
+    assigned = []
+    for e in d.elements:
+        if only_unlabelled and e.label:
+            continue
+        letter = prefix_map.get(e.definition.embed_path) or e.prefix or "E"
+        letter = letter.upper()
+        counters[letter] = counters.get(letter, 0) + 1
+        new = f"-{letter}{counters[letter]}"
+        e.set_label(new)
+        assigned.append({"uuid": e.uuid, "label": new,
+                         "type": e.definition.embed_path})
+    _save(prj)
+    return {"assigned": assigned, "count": len(assigned)}
+
+
 def tool_list_content(folio: int = 0) -> dict:
     d = _project().diagram(folio)
     return {
@@ -523,6 +606,36 @@ TOOLS = {
                  "folio": I},
                 ["from_element", "from_terminal", "to_element",
                  "to_terminal"])),
+    "qet_set_label": (
+        tool_set_label, "Change an element's designation (label). Element "
+        "referenced by current label or uuid.",
+        _schema({"element": S, "label": S, "folio": I},
+                ["element", "label"])),
+    "qet_move_element": (
+        tool_move_element, "Move an element to new scene coordinates "
+        "(10px grid).",
+        _schema({"element": S, "x": N, "y": N, "folio": I},
+                ["element", "x", "y"])),
+    "qet_rotate_element": (
+        tool_rotate_element, "Rotate an element: orientation 0/1/2/3 = "
+        "0°/90°/180°/270°.",
+        _schema({"element": S, "orientation": I, "folio": I},
+                ["element", "orientation"])),
+    "qet_delete_element": (
+        tool_delete_element, "Delete an element and any conductor attached "
+        "to it.",
+        _schema({"element": S, "folio": I}, ["element"])),
+    "qet_add_diagram": (
+        tool_add_diagram, "Add a new (A3 landscape) folio to the current "
+        "project; returns its index.",
+        _schema({"title": S}, [])),
+    "qet_auto_designate": (
+        tool_auto_designate, "Auto-assign IEC 81346 designations "
+        "(-<letter><seq>) by category letter (from each element's prefix). "
+        "Conservative: only labels un-labelled elements by default, never "
+        "breaking existing cross-references.",
+        _schema({"prefix_map": {"type": "object"},
+                 "only_unlabelled": {"type": "boolean"}, "folio": I}, [])),
     "qet_list_content": (
         tool_list_content, "List all element instances and conductors on a "
         "folio of the current project.",
