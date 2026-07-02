@@ -20,12 +20,17 @@ from pathlib import Path
 NAME = "huchen_iso7200_a3"
 OUT = Path(__file__).resolve().parents[1] / "data" / "titleblocks" / f"{NAME}.titleblock"
 
-# rev table: 版次12mm 日期25mm 內容=flex 修改16mm 核准17mm
-# title block (180mm): boundaries at 0,49,65,98,115,139,148,180 mm
-COLS = "48;100;r100%;64;68;196;64;132;68;96;36;128"
-# label rows 12px (3mm) / value rows 20px (5mm) / title row 28px (7mm);
-# total 200px = 50mm — mirrors the xlsx (label rows short, values tall)
-ROWS = "12;20;12;20;12;28;12;20;12;20;12;20"
+# Corner layout (xlsx sheet「A3圖框範本」): everything right-aligned in
+# 180 mm; revision table stacked ABOVE the ISO 7200 block. Column 0 is an
+# r100% spacer with NO fields -> EmptyCell -> QET draws nothing there.
+# Unified 10-column set (mm): 16,33,16,33,17,16,8,9,7,25 (sum 180), i.e.
+# boundaries 16,49,65,98,115,131,139,148,155 shared by:
+#   rev row: 版次16 | 日期33 | 內容82 | 修改24 | 核准25
+#   band1/2: 49 | 49 | 41 | 41      band3: 識別號65 | 圖名115
+#   band4:   所有者115 | 頁次33 | 圖幅32
+COLS = "r100%;64;132;64;132;68;64;32;36;28;100"
+# rev: header 24 + 5 entries x16; block: label 12 / value 20 / title 28
+ROWS = "24;16;16;16;16;16;12;20;12;20;12;28;12;20;12;20;12;20"
 
 LBL, VAL = 5, 9   # font sizes
 
@@ -36,56 +41,56 @@ def field(row, col, rowspan, colspan, text, fontsize=VAL, align="center",
 
 
 CELLS = [
-    # ── 修訂記錄表(左,cols 0-4;每格跨 2 列 = 標籤列+值列)────
-    field(0, 0, 2, 1, "版次 Rev.", LBL),
-    field(0, 1, 2, 1, "日期 Date", LBL),
-    field(0, 2, 2, 1, "修改內容 Description of revision", LBL),
-    field(0, 3, 2, 1, "修改 By", LBL),
-    field(0, 4, 2, 1, "核准 Appd", LBL),
-    # 第一列修訂 = 目前版次(變數);其餘留白待手填
-    field(2, 0, 2, 1, "%{indexrev}", 8),
-    field(2, 1, 2, 1, "%{date}", 8),
-    field(2, 2, 2, 1, "%{rev-desc}", 8, "left"),
-    field(2, 3, 2, 1, "%{rev-by}", 8),
-    field(2, 4, 2, 1, "%{rev-appd}", 8),
-    *[field(r, c, 2, 1, "", 8)
-      for r in (4, 6, 8, 10) for c in range(5)],
+    # ── 修訂記錄表(r0 表頭 + r1 現行版次 + r2-r5 留白)────────
+    field(0, 1, 1, 1, "版次 Rev.", LBL),
+    field(0, 2, 1, 1, "日期 Date", LBL),
+    field(0, 3, 1, 4, "修改內容 Description of revision", LBL),
+    field(0, 7, 1, 3, "修改 By", LBL),
+    field(0, 10, 1, 1, "核准 Appd", LBL),
+    field(1, 1, 1, 1, "%{indexrev}", 8),
+    field(1, 2, 1, 1, "%{date}", 8),
+    field(1, 3, 1, 4, "%{rev-desc}", 8, "left"),
+    field(1, 7, 1, 3, "%{rev-by}", 8),
+    field(1, 10, 1, 1, "%{rev-appd}", 8),
+    *[f for r in (2, 3, 4, 5) for f in (
+        field(r, 1, 1, 1, "", 8), field(r, 2, 1, 1, "", 8),
+        field(r, 3, 1, 4, "", 8), field(r, 7, 1, 3, "", 8),
+        field(r, 10, 1, 1, "", 8))],
 
-    # ── ISO 7200 標題欄(右,cols 5-11)────────────────────────
-    # 帶 1:簽核(49|49|41|41 mm)
-    field(0, 5, 1, 1, "技術參考 Technical reference", LBL, "left"),
-    field(0, 6, 1, 2, "繪製 Created by", LBL, "left"),
-    field(0, 8, 1, 2, "審核 Checked by", LBL, "left"),
-    field(0, 10, 1, 2, "核准 Approved by", LBL, "left"),
-    field(1, 5, 1, 1, "%{techref}"),
-    field(1, 6, 1, 2, "%{author}", VAL, "center", "center", "author"),
-    field(1, 8, 1, 2, "%{checked-by}"),
-    field(1, 10, 1, 2, "%{approved-by}"),
-    # 帶 2:文件屬性
-    field(2, 5, 1, 1, "文件類別 Document type", LBL, "left"),
-    field(2, 6, 1, 2, "文件狀態 Document status", LBL, "left"),
-    field(2, 8, 1, 2, "發行日期 Date of issue *", LBL, "left"),
-    field(2, 10, 1, 2, "修訂索引 Revision index", LBL, "left"),
-    field(3, 5, 1, 1, "%{doc-type}"),
-    field(3, 6, 1, 2, "%{doc-status}"),
-    field(3, 8, 1, 2, "%{date}", VAL, "center", "center", "date"),
-    field(3, 10, 1, 2, "%{indexrev}"),
-    # 帶 3:所有者(65)+ 圖名(115);圖名列特高(28px)
-    field(4, 5, 1, 2, "法定所有者 Legal owner *", LBL, "left"),
-    field(4, 7, 1, 5, "圖名 Title", LBL, "left"),
-    field(5, 5, 3, 2, "虎承科技 Huchen Technology", 11),
-    field(5, 7, 1, 5, "%{title}", 12, "center", "center", "title"),
-    field(6, 7, 1, 5, "補充圖名 Supplementary title", LBL, "left"),
-    field(7, 7, 1, 5, "%{subtitle}"),
-    # 帶 4:識別號(115)+ 頁次(33)+ 圖幅(32)+ 備註
-    field(8, 5, 1, 4, "文件識別號 Identification number *", LBL, "left"),
-    field(8, 9, 1, 2, "頁次 Sheet *", LBL, "left"),
-    field(8, 11, 1, 1, "圖幅 Size", LBL, "left"),
-    field(9, 5, 3, 4, "%{doc-id}", 11),
-    field(9, 9, 1, 2, "%{folio}", VAL, "center", "center", "folio"),
-    field(9, 11, 1, 1, "A3"),
-    field(10, 9, 1, 3, "備註 Remarks", LBL, "left"),
-    field(11, 9, 1, 3, "%{remarks}", 8),
+    # ── 帶 1:簽核(49|49|41|41 mm)────────────────────────────
+    field(6, 1, 1, 2, "技術參考 Technical reference", LBL, "left"),
+    field(6, 3, 1, 2, "繪製 Created by", LBL, "left"),
+    field(6, 5, 1, 3, "審核 Checked by", LBL, "left"),
+    field(6, 8, 1, 3, "核准 Approved by", LBL, "left"),
+    field(7, 1, 1, 2, "%{techref}"),
+    field(7, 3, 1, 2, "%{author}", VAL, "center", "center", "author"),
+    field(7, 5, 1, 3, "%{checked-by}"),
+    field(7, 8, 1, 3, "%{approved-by}"),
+    # ── 帶 2:文件屬性 ─────────────────────────────────────────
+    field(8, 1, 1, 2, "文件類別 Document type", LBL, "left"),
+    field(8, 3, 1, 2, "文件狀態 Document status", LBL, "left"),
+    field(8, 5, 1, 3, "發行日期 Date of issue *", LBL, "left"),
+    field(8, 8, 1, 3, "修訂索引 Revision index", LBL, "left"),
+    field(9, 1, 1, 2, "%{doc-type}"),
+    field(9, 3, 1, 2, "%{doc-status}"),
+    field(9, 5, 1, 3, "%{date}", VAL, "center", "center", "date"),
+    field(9, 8, 1, 3, "%{indexrev}"),
+    # ── 帶 3:識別號(65,高格)+ 圖名(115)───────────────────
+    field(10, 1, 1, 3, "文件識別號 Identification number *", LBL, "left"),
+    field(10, 4, 1, 7, "圖名 Title", LBL, "left"),
+    field(11, 1, 3, 3, "%{doc-id}", 10),
+    field(11, 4, 1, 7, "%{title}", 12, "center", "center", "title"),
+    field(12, 4, 1, 7, "補充圖名 Supplementary title", LBL, "left"),
+    field(13, 4, 1, 7, "%{subtitle}"),
+    # ── 帶 4:所有者(115,高格)+ 頁次(33)+ 圖幅(32)+ 備註 ──
+    field(14, 1, 1, 5, "法定所有者 Legal owner *", LBL, "left"),
+    field(14, 6, 1, 3, "頁次 Sheet *", LBL, "left"),
+    field(14, 9, 1, 2, "圖幅 Size", LBL, "left"),
+    field(15, 1, 3, 5, "虎承科技 Huchen Technology", 12),
+    field(15, 6, 1, 3, "%{folio}", VAL, "center", "center", "folio"),
+    field(15, 9, 1, 2, "A3"),
+    field(16, 6, 1, 5, "備註 Remarks", LBL, "left"),
+    field(17, 6, 1, 5, "%{remarks}", 8),
 ]
 
 

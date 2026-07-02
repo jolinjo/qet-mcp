@@ -109,12 +109,16 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
   自訂(經 `d.properties` / GUI 標題欄屬性自訂表):`%{techref}
   %{checked-by} %{approved-by} %{doc-type} %{doc-status} %{subtitle}
   %{doc-id} %{remarks} %{rev-desc} %{rev-by} %{rev-appd}`。
+- **排版為角落式**(xlsx sheet1):整組 180mm 靠右下,修訂表疊於標題欄
+  上方;grid col0 為 `r100%` 填充欄且**不放任何 field**(EmptyCell 不畫
+  線)。QET fork ≥0.100.11 外框只框非空格聯集,左側完全隱形。
 - **格式陷阱(實戰)**:
   - `rowspan`/`colspan` 是「**額外**跨的格數」(colspan="1"=佔 2 格,
     titleblocktemplate.cpp:1202);產生器 API 用總格數、輸出時 -1。
   - 欄寬語法:`196`(px)/`r100%`(吃剩餘寬,整條 grid 恰一欄用);
     尺標 4px/mm。
-  - 每個格位都要有 field 覆蓋(含空白格),否則出現破洞/多餘框線。
+  - 有內容的區域需以 field 完整覆蓋避免破洞;**刻意留白的區域則完全
+    不放 field**(EmptyCell = 無框線,角落式排版靠這個)。
 
 ## 8. 環境與流程注意
 
