@@ -1,7 +1,7 @@
 <titleblocktemplate name="huchen_iso7200_a3">
   <information>Huchen ISO 7200 A3 full-width title block, generated from docs/ISO7200_A3_圖框標題欄範本_4.xlsx by tools/gen_titleblock.py</information>
   <logos />
-  <grid cols="80;120;r100%;80;80;120;120;120;120;120;120;120;120" rows="20;20;20;20;20;20;20">
+  <grid cols="40;40;r100%;80;80;120;120;120;120;120;120;120;120" rows="20;20;20;20;20;20;20">
     <field row="0" col="0" fontsize="7" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">版次 Rev.</translation>
