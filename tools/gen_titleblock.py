@@ -28,8 +28,9 @@ NAME = "huchen_iso7200_a3"
 ROOT_DIR = Path(__file__).resolve().parents[1]
 OUT = ROOT_DIR / "data" / "titleblocks" / f"{NAME}.titleblock"
 # 公司 logo(已白邊補至 240:64 格子比例,QET 會拉伸填滿格子)
-LOGO_FILE = ROOT_DIR / "data" / "logos" / "huchen_logo.png"
-LOGO_NAME = "huchen_logo"
+LOGO_FILE = ROOT_DIR / "data" / "logos" / "huchen_mark.png"  # 純圖標(無文字)
+LOGO_NAME = "huchen_mark"
+COMPANY_NAME = "虎氶科技有限公司"
 
 # 右側 8 個欄位一律 120px(上下兩層共用同一組 120px 格線,必然對齊);
 # 左區 版次40|日期50|修改內容r100%(吃掉所有剩餘寬)|修改80|核准80
@@ -83,9 +84,9 @@ CELLS = [
     field(3, 9, 1, 2, "圖名 Title", LBL, "left"),
     field(3, 11, 1, 1, "圖幅 Size", LBL, "left"),
     field(3, 12, 1, 1, "頁次 Sheet *", LBL, "left"),
-    # 法定所有者:無標題列,單一格跨滿下層(4 列高),放公司 logo
-    # (LOGO: 前綴 → 產生 <logo resource=...> 格)
-    field(3, 5, 4, 2, f"LOGO:{LOGO_NAME}"),
+    # 法定所有者:無標題列,跨滿下層(4 列高)。左半 logo 圖標、右半公司名
+    field(3, 5, 4, 1, f"LOGO:{LOGO_NAME}"),
+    field(3, 6, 4, 1, COMPANY_NAME, 11),
     field(4, 7, 3, 2, "%{doc-id}", 11),
     field(4, 9, 1, 2, "%{title}", 10, "center", "center", "title"),
     field(4, 11, 1, 1, "A3", 10),
