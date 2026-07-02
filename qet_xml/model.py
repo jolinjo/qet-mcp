@@ -195,6 +195,9 @@ class Diagram:
         self.attrs = {**self.ATTR_DEFAULTS, **(attrs or {}), "title": title}
         self.elements: list[ElementInstance] = []
         self.conductors: list[Conductor] = []
+        # custom titleblock variables (%{key} in templates), serialized as
+        # the diagram's <properties> child (titleblockproperties.cpp:96)
+        self.properties: dict[str, str] = {}
 
     # -- authoring API ------------------------------------------------------
     def place_element(self, elmt: str | Path | ElementDefinition, x: float,
@@ -217,6 +220,12 @@ class Diagram:
     # -- serialization ------------------------------------------------------
     def to_xml(self) -> ET.Element:
         d = ET.Element("diagram", self.attrs)
+        if self.properties:
+            props = ET.SubElement(d, "properties")
+            for key, value in self.properties.items():
+                p = ET.SubElement(props, "property",
+                                  {"name": key, "show": "1"})
+                p.text = value
         elements = ET.SubElement(d, "elements")
         for inst in self.elements:
             elements.append(inst.to_xml())
@@ -236,6 +245,8 @@ class QetProject:
         self.version = version
         self.diagrams: list[Diagram] = []
         self.collection: dict[str, ElementDefinition] = {}  # embed_path -> def
+        # embedded titleblock templates: name -> <titleblocktemplate> element
+        self.titleblock_templates: dict[str, ET.Element] = {}
 
     # -- construction -------------------------------------------------------
     @classmethod
@@ -273,9 +284,24 @@ class QetProject:
         if collection is not None:
             prj._read_collection(collection, prefix="")
 
+        tbts = root.find("titleblocktemplates")
+        if tbts is not None:
+            for t in tbts.findall("titleblocktemplate"):
+                prj.titleblock_templates[t.get("name", "")] = copy.deepcopy(t)
+
         for ddom in root.findall("diagram"):
             prj._read_diagram(ddom)
         return prj
+
+    def embed_titleblock(self, template: ET.Element,
+                         apply_to_diagrams: bool = True) -> str:
+        """Embed a <titleblocktemplate> and reference it from diagrams."""
+        name = template.get("name", "")
+        self.titleblock_templates[name] = copy.deepcopy(template)
+        if apply_to_diagrams:
+            for d in self.diagrams:
+                d.attrs["titleblocktemplate"] = name
+        return name
 
     def _read_collection(self, node: ET.Element, prefix: str) -> None:
         for cat in node.findall("category"):
@@ -291,6 +317,10 @@ class QetProject:
     def _read_diagram(self, ddom: ET.Element) -> None:
         d = Diagram(self, ddom.get("title", ""),
                     {k: v for k, v in ddom.attrib.items() if k != "title"})
+        props = ddom.find("properties")
+        if props is not None:
+            d.properties = {p.get("name", ""): (p.text or "")
+                            for p in props.findall("property")}
         self.diagrams.append(d)
 
         elements = ddom.find("elements")
@@ -337,6 +367,11 @@ class QetProject:
                                       "version": self.version})
         for d in self.diagrams:
             root.append(d.to_xml())
+
+        if self.titleblock_templates:
+            tbts = ET.SubElement(root, "titleblocktemplates")
+            for name in sorted(self.titleblock_templates):
+                tbts.append(copy.deepcopy(self.titleblock_templates[name]))
 
         collection = ET.SubElement(root, "collection")
         for embed_path in sorted(self.collection):

@@ -87,7 +87,33 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 - 自保持:aux NO 與啟動鈕並聯,兩端各自 connect 到同一節點端子
   (同一端子可掛多條導線,QET 自動畫接點)。
 
-## 7. 環境與流程注意
+## 7. 標題欄圖框(titleblock)
+
+- 公司標準圖框:`data/titleblocks/huchen_iso7200_a3.titleblock`
+  (ISO 7200 全寬底欄,由 `tools/gen_titleblock.py` 從
+  docs/ISO7200_A3_….xlsx 生成;改版改產生器再重生,勿手改輸出檔)。
+- 套用方式(qet_xml):
+
+  ```python
+  tpl = ET.fromstring(open("data/titleblocks/huchen_iso7200_a3.titleblock").read())
+  prj.embed_titleblock(tpl)          # 內嵌 + 所有 diagram 引用
+  d.attrs.update({"author": "...", "title": "...", "indexrev": "A",
+                  "date": "20260702", "folio": "%id / %total"})
+  d.properties.update({"doc-id": "...", "doc-type": "&EFS 電路圖", ...})
+  ```
+
+- 變數:內建 `%{author} %{date} %{title} %{indexrev} %{folio}`;
+  自訂(經 `d.properties` / GUI 標題欄屬性自訂表):`%{techref}
+  %{checked-by} %{approved-by} %{doc-type} %{doc-status} %{subtitle}
+  %{doc-id} %{remarks} %{rev-desc} %{rev-by} %{rev-appd}`。
+- **格式陷阱(實戰)**:
+  - `rowspan`/`colspan` 是「**額外**跨的格數」(colspan="1"=佔 2 格,
+    titleblocktemplate.cpp:1202);產生器 API 用總格數、輸出時 -1。
+  - 欄寬語法:`196`(px)/`r100%`(吃剩餘寬,整條 grid 恰一欄用);
+    尺標 4px/mm。
+  - 每個格位都要有 field 覆蓋(含空白格),否則出現破洞/多餘框線。
+
+## 8. 環境與流程注意
 
 - **改了 server.py 要使用者在 /mcp reconnect(或重啟 Claude Code)才生效**;
   qet_xml 的修改則腳本立即可用(server 內建索引/資料快取除外)。

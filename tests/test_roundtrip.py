@@ -96,6 +96,21 @@ class BuildFromScratch(unittest.TestCase):
             prj.save(out)
             self.assertEqual(snapshot(prj), snapshot(QetProject.open(out)))
 
+    def test_titleblock_and_properties_roundtrip(self):
+        import xml.etree.ElementTree as ET_
+        prj = self.build()
+        tpl = ET_.Element("titleblocktemplate", {"name": "tb_test"})
+        ET_.SubElement(tpl, "grid", {"cols": "r100%", "rows": "16"})
+        prj.embed_titleblock(tpl)
+        prj.diagram(0).properties["doc-id"] = "HC-001"
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "tb.qet"
+            prj.save(out)
+            reopened = QetProject.open(out)
+        self.assertIn("tb_test", reopened.titleblock_templates)
+        self.assertEqual(
+            reopened.diagram(0).attrs.get("titleblocktemplate"), "tb_test")
+
     def test_terminal_lookup(self):
         defn = ElementDefinition.load(CPI)
         self.assertEqual(defn.terminal("1").uuid, CPI_TERM_1)
