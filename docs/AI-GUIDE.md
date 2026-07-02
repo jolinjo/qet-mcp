@@ -50,6 +50,15 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
 | `qet_netlist()` | 端子級連線 JSON,查線用 |
 | `qet_validate()` | 真 QET 引擎載入檢查 |
+| `qet_apply_titleblock(title, doc_id, subtitle, author, …)` | **畫完套公司 ISO 7200 圖框**(logo/底色/A3),一次套所有 folio |
+| `qet_set_revisions(revisions)` | 填修訂歷史(累積);每筆 `{idx,date,desc,zone,by,appd}`,zone=修改座標 |
+| `qet_check_iec_compliance(folio)` | 依公司 IEC 規範稽核(81346 代號/60204-1 線號顏色/連通性),回 MUST/SHOULD findings |
+
+**收尾流程**:畫完電路 → `qet_apply_titleblock(...)` 套圖框 →
+`qet_check_iec_compliance()` 稽核(修掉 MUST)→ `qet_render` 目視 →
+`qet_set_revisions` 記錄版次。IEC 檢查要點:代號須 `-<類別字母><序號>`
+(禁 JIS 縮寫 MC/THRY/CR);同代號多部件(接觸器主觸點+線圈共用 -KM1)
+是**正常交互參照、非重複錯誤**;控制迴路導線應依類型上色(見 IEC 規範 §2)。
 
 ## 3. 座標與佈局規範
 

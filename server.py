@@ -15,16 +15,20 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from qet_xml import ElementDefinition, QetProject  # noqa: E402
 from qet_xml import index as elmt_index  # noqa: E402
+from qet_xml.model import FOLIO_A3_LANDSCAPE  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
+TITLEBLOCK_FILE = ROOT / "data" / "titleblocks" / "huchen_iso7200_a3.titleblock"
 QET_BINARY = Path(os.environ.get(
     "QET_BINARY", ROOT.parent / "QET-qeletrotech/build/qelectrotech.app/Contents/MacOS/qelectrotech"))
 ELEMENTS_DIR = Path(os.environ.get(
@@ -272,6 +276,141 @@ def tool_validate() -> dict:
     return _run_cli("--cli-validate", str(_current_project))
 
 
+# --------------------------------------------------------------------------- #
+# titleblock
+# --------------------------------------------------------------------------- #
+
+def tool_apply_titleblock(title: str = "", doc_id: str = "",
+                          subtitle: str = "", doc_type: str = "&EFS 電路圖",
+                          doc_status: str = "正式發行 Released",
+                          author: str = "", indexrev: str = "A",
+                          date: str = "", techref: str = "",
+                          checked_by: str = "", approved_by: str = "",
+                          remarks: str = "", a3: bool = True) -> dict:
+    """Embed the Huchen ISO 7200 titleblock into every folio and fill it."""
+    prj = _project()
+    prj.embed_titleblock(ET.fromstring(
+        TITLEBLOCK_FILE.read_text(encoding="utf-8")))
+    attrs = {"author": author, "title": title, "indexrev": indexrev,
+             "date": date, "folio": "%id / %total"}
+    # all custom fields written (blanks too) so QET shows no %{...} literals
+    props = {"techref": techref, "checked-by": checked_by,
+             "approved-by": approved_by, "doc-type": doc_type,
+             "doc-status": doc_status, "subtitle": subtitle,
+             "doc-id": doc_id, "remarks": remarks}
+    for d in prj.diagrams:
+        if a3:
+            d.attrs.update(FOLIO_A3_LANDSCAPE)
+        d.attrs.update({k: v for k, v in attrs.items() if v})
+        d.properties.update(props)
+        if not any(k.startswith("rev1-") for k in d.properties):
+            d.set_revisions([])   # blank out rev1..6 placeholders
+    _save(prj)
+    return {"applied_to_folios": len(prj.diagrams), "title": title}
+
+
+def tool_set_revisions(revisions: list, folio: int = 0) -> dict:
+    """Fill the revision-history table (accumulates every version).
+
+    Each revision: {idx, date, desc, zone, by, appd}. zone = the drawing
+    coordinate of the change (e.g. 'D5').
+    """
+    prj = _project()
+    prj.diagram(folio).set_revisions(
+        [{k: str(v) for k, v in r.items()} for r in revisions])
+    _save(prj)
+    return {"revisions": len(revisions)}
+
+
+# --------------------------------------------------------------------------- #
+# IEC compliance check
+# --------------------------------------------------------------------------- #
+
+_LABEL_RE = re.compile(r"^-([A-Z]+)(\d+)$")
+
+
+def tool_check_iec_compliance(folio: int = 0) -> dict:
+    """Check a folio against the company IEC ruleset (81346 / 60204-1).
+
+    Findings carry level MUST/SHOULD; empty findings = compliant.
+    """
+    rules = _load_data("iec_rules.json")
+    valid = set(rules.get("valid_categories", {}))
+    forbidden = set(rules.get("forbidden_abbrev", []))
+    d = _project().diagram(folio)
+    findings = []
+
+    def add(level, rule, target, message):
+        findings.append({"level": level, "rule": rule,
+                         "target": target, "message": message})
+
+    # R1/R2 — element designations (IEC 81346)
+    by_category: "dict[str, list[int]]" = {}
+    for e in d.elements:
+        label = e.label.strip()
+        if not label:
+            add("MUST", "81346-label", e.uuid,
+                f"元件 {e.definition.embed_path} 無代號")
+            continue
+        if not label.startswith("-"):
+            add("MUST", "81346-prefix", label, f"代號 {label} 缺少產品面前綴 '-'")
+        m = _LABEL_RE.match(label)
+        if not m:
+            add("MUST", "81346-format", label,
+                f"代號 {label} 不符 -<類別字母><序號> 格式")
+            continue
+        letters, num = m.group(1), int(m.group(2))
+        if letters in forbidden:
+            add("MUST", "81346-abbrev", label,
+                f"代號 {label} 使用禁用縮寫(JIS/JIC),應改用 IEC 類別字母")
+        elif letters[0] not in valid:
+            add("MUST", "81346-category", label,
+                f"代號 {label} 類別字母 '{letters[0]}' 不在 IEC 81346 類別表")
+        else:
+            by_category.setdefault(letters, []).append(num)
+
+    # NB: a repeated designation is NOT an error — one device's parts (a
+    # contactor's power poles, coil, aux contacts) legitimately share -KM1
+    # via cross-referencing. We only flag sequence gaps.
+    for letters, nums in by_category.items():
+        expected = set(range(1, max(nums) + 1))
+        for gap in sorted(expected - set(nums)):
+            add("SHOULD", "81346-sequence", f"-{letters}",
+                f"類別 -{letters} 序號跳號(缺 {gap})")
+
+    # R3 — every conductor must carry a wire number (both ends)
+    for c in d.conductors:
+        if not str(c.props.get("num", "")).strip():
+            add("MUST", "60204-wirenum",
+                f"{c.props.get('num','')}@{c.element1[:8]}",
+                "導線未標線號(等電位編號,兩端皆須)")
+
+    # R4 — dangling terminals (element terminals with no conductor)
+    used: "dict[str, set]" = {}
+    for c in d.conductors:
+        used.setdefault(c.element1, set()).add(c.terminal1)
+        used.setdefault(c.element2, set()).add(c.terminal2)
+    for e in d.elements:
+        total = {t.uuid for t in e.definition.terminals}
+        free = total - used.get(e.uuid, set())
+        if free:
+            add("SHOULD", "connectivity-dangling", e.label or e.uuid,
+                f"{e.label or '元件'} 有 {len(free)}/{len(total)} 個端子未接線")
+
+    # R5 — control conductors should not all be plain black
+    colors = {str(c.props.get("color", "#000000")).upper()
+              for c in d.conductors}
+    if d.conductors and colors == {"#000000"}:
+        add("SHOULD", "60204-color",
+            "(all)", "全部導線為黑色;控制迴路應依迴路類型上色(AC紅/DC藍…)")
+
+    levels = {"MUST": 0, "SHOULD": 0}
+    for f in findings:
+        levels[f["level"]] = levels.get(f["level"], 0) + 1
+    return {"folio": folio, "compliant": levels["MUST"] == 0,
+            "counts": levels, "findings": findings}
+
+
 def _schema(props: dict, required: "list[str]") -> dict:
     return {"type": "object", "properties": props, "required": required}
 
@@ -351,6 +490,27 @@ TOOLS = {
         tool_validate, "Load-check the current project with the real QET "
         "engine; returns per-folio element/conductor counts.",
         _schema({}, [])),
+    "qet_apply_titleblock": (
+        tool_apply_titleblock, "Embed the company ISO 7200 titleblock into "
+        "every folio (A3 landscape) and fill its fields. Use once a project "
+        "is drawn to give it a proper drawing frame.",
+        _schema({"title": S, "doc_id": S, "subtitle": S, "doc_type": S,
+                 "doc_status": S, "author": S, "indexrev": S, "date": S,
+                 "techref": S, "checked_by": S, "approved_by": S,
+                 "remarks": S, "a3": {"type": "boolean"}}, [])),
+    "qet_set_revisions": (
+        tool_set_revisions, "Fill the revision-history table (accumulates "
+        "every version, not just the current one). Each revision: "
+        "{idx,date,desc,zone,by,appd}; zone = drawing coordinate of the "
+        "change (e.g. 'D5'). Unused rows auto-blank.",
+        _schema({"revisions": {"type": "array", "items": {"type": "object"}},
+                 "folio": I}, ["revisions"])),
+    "qet_check_iec_compliance": (
+        tool_check_iec_compliance, "Audit a folio against the company IEC "
+        "ruleset (81346 designations, 60204-1 wire numbers/colours, "
+        "connectivity). Returns findings with level MUST/SHOULD; check "
+        "wiring by rules instead of by eye.",
+        _schema({"folio": I}, [])),
 }
 
 

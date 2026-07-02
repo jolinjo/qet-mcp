@@ -1,0 +1,35 @@
+{
+  "_comment": "IEC 檢查規則資料(對應 docs/QET繪圖規範_IEC_AI執行版.md)。程式邏輯在 server.py check_iec_compliance,此檔提供可調的字母表/禁用縮寫/顏色/號段。",
+  "valid_categories": {
+    "Q": "動力開關/保護切換",
+    "F": "保護裝置(熔絲/斷路器/積熱)",
+    "K": "繼電器/接觸器",
+    "T": "變壓器/變換器",
+    "G": "電源供應",
+    "M": "電動機",
+    "S": "操作/感測開關",
+    "B": "感測轉換器",
+    "P": "顯示裝置",
+    "H": "信號裝置",
+    "X": "端子/連接器",
+    "W": "電纜/導線",
+    "A": "組合裝置(PLC/驅動器)",
+    "U": "變流裝置(VFD/伺服)",
+    "E": "其他電氣"
+  },
+  "forbidden_abbrev": ["MC", "THRY", "THR", "CR", "MS", "MCCB", "MCB", "ELB", "PB", "LS", "PL"],
+  "conductor_colors": {
+    "power": "#000000",
+    "ac_control": "#FF0000",
+    "dc_control": "#00008B",
+    "neutral": "#ADD8E6",
+    "pe": "#008000",
+    "live_after_off": "#FF8C00"
+  },
+  "wire_number_ranges": {
+    "ac_control": [100, 199],
+    "dc_24v": [200, 299],
+    "dc_0v": [300, 399],
+    "analog": [400, 499]
+  }
+}
