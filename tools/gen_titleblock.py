@@ -34,9 +34,10 @@ OUT = ROOT_DIR / "data" / "titleblocks" / f"{NAME}.titleblock"
 LOGO_FILE = ROOT_DIR / "data" / "logos" / "huchen_logo.png"
 LOGO_NAME = "huchen_logo"
 
-# 右側 8 個欄位一律 120px(上下兩層共用同一組 120px 格線,必然對齊);
-# 左區 版次40|日期50|修改內容r100%(吃掉所有剩餘寬)|修改80|核准80
-COLS = "40;50;r100%;80;80;" + ";".join(["120"] * 8)
+# 左區修訂記錄表 6 欄:版次40|日期50|修改內容r100%(吃掉剩餘寬)|
+# 位置60|修改80|核准80。右側 8 個欄位一律 120px(上下兩層共用格線)。
+COLS = "40;50;r100%;60;80;80;" + ";".join(["120"] * 8)
+REV_ROWS = 6   # 修訂記錄表的資料列數(版次 A~F)
 # 列高 16px:上層 48px(標籤16+值32)+ 下層 64px = 112px
 # = 表頭+6 列修訂記錄(7 x 16)
 ROWS = ";".join(["16"] * 7)   # 7 x 16 px = 112 px
@@ -50,52 +51,56 @@ def field(row, col, rowspan, colspan, text, fontsize=10, align="center",
 
 
 CELLS = [
-    # ── 左區:修訂記錄欄 520px,跨全高(表頭 + 7 列)──────────
+    # ── 左區:修訂記錄表(表頭 + 6 資料列),col 0-5 ──────────────
+    # 每列綁「不同」變數 rev{n}-*,可累積完整修訂歷史(而非只顯示當前
+    # 版次的單一組值);位置欄記錄本次修改在圖面的座標/區域。
     field(0, 0, 1, 1, "版次 Rev.", LBL),
     field(0, 1, 1, 1, "日期 Date", LBL),
     field(0, 2, 1, 1, "修改內容 Description of revision", LBL),
-    field(0, 3, 1, 1, "修改 By", LBL),
-    field(0, 4, 1, 1, "核准 Appd", LBL),
-    field(1, 0, 1, 1, "%{indexrev}", 8),
-    field(1, 1, 1, 1, "%{date}", 8),
-    field(1, 2, 1, 1, "%{rev-desc}", 8, "left"),
-    field(1, 3, 1, 1, "%{rev-by}", 8),
-    field(1, 4, 1, 1, "%{rev-appd}", 8),
-    *[field(r, c, 1, 1, "", 8) for r in range(2, 7) for c in range(5)],
+    field(0, 3, 1, 1, "位置 Zone", LBL),
+    field(0, 4, 1, 1, "修改 By", LBL),
+    field(0, 5, 1, 1, "核准 Appd", LBL),
+    *[f for n in range(1, REV_ROWS + 1) for f in (
+        field(n, 0, 1, 1, f"%{{rev{n}-idx}}", 8),
+        field(n, 1, 1, 1, f"%{{rev{n}-date}}", 8),
+        field(n, 2, 1, 1, f"%{{rev{n}-desc}}", 8, "left"),
+        field(n, 3, 1, 1, f"%{{rev{n}-zone}}", 8),
+        field(n, 4, 1, 1, f"%{{rev{n}-by}}", 8),
+        field(n, 5, 1, 1, f"%{{rev{n}-appd}}", 8))],
 
-    # ── 上層 960px:8 個欄位,每欄 120px(標籤 20 + 值 40)──────
-    field(0, 5, 1, 1, "修訂索引 Revision index", LBL, "left"),
-    field(0, 6, 1, 1, "文件類別 Document type", LBL, "left"),
-    field(0, 7, 1, 1, "技術參考 Technical reference", LBL, "left"),
-    field(0, 8, 1, 1, "繪製 Created by", LBL, "left"),
-    field(0, 9, 1, 1, "審核 Checked by", LBL, "left"),
-    field(0, 10, 1, 1, "核准 Approved by", LBL, "left"),
-    field(0, 11, 1, 1, "文件狀態 Document status", LBL, "left"),
-    field(0, 12, 1, 1, "發行日期 Date of issue *", LBL, "left"),
-    field(1, 5, 2, 1, "%{indexrev}", 10),
-    field(1, 6, 2, 1, "%{doc-type}", 10),
-    field(1, 7, 2, 1, "%{techref}", 10),
-    field(1, 8, 2, 1, "%{author}", 10, "center", "center", "author"),
-    field(1, 9, 2, 1, "%{checked-by}", 10),
-    field(1, 10, 2, 1, "%{approved-by}", 10),
-    field(1, 11, 2, 1, "%{doc-status}", 10),
-    field(1, 12, 2, 1, "%{date}", 10, "center", "center", "date"),
+    # ── 上層 8 欄位(每欄 120px),col 6-13 ─────────────────────
+    field(0, 6, 1, 1, "修訂索引 Revision index", LBL, "left"),
+    field(0, 7, 1, 1, "文件類別 Document type", LBL, "left"),
+    field(0, 8, 1, 1, "技術參考 Technical reference", LBL, "left"),
+    field(0, 9, 1, 1, "繪製 Created by", LBL, "left"),
+    field(0, 10, 1, 1, "審核 Checked by", LBL, "left"),
+    field(0, 11, 1, 1, "核准 Approved by", LBL, "left"),
+    field(0, 12, 1, 1, "文件狀態 Document status", LBL, "left"),
+    field(0, 13, 1, 1, "發行日期 Date of issue *", LBL, "left"),
+    field(1, 6, 2, 1, "%{indexrev}", 10),
+    field(1, 7, 2, 1, "%{doc-type}", 10),
+    field(1, 8, 2, 1, "%{techref}", 10),
+    field(1, 9, 2, 1, "%{author}", 10, "center", "center", "author"),
+    field(1, 10, 2, 1, "%{checked-by}", 10),
+    field(1, 11, 2, 1, "%{approved-by}", 10),
+    field(1, 12, 2, 1, "%{doc-status}", 10),
+    field(1, 13, 2, 1, "%{date}", 10, "center", "center", "date"),
 
-    # ── 下層 960px:240|240|240|120|120(同一組 120px 格線)────
-    field(3, 7, 1, 2, "文件識別號 Identification number *", LBL, "left"),
-    field(3, 9, 1, 2, "圖名 Title", LBL, "left"),
-    field(3, 11, 1, 1, "圖幅 Size", LBL, "left"),
-    field(3, 12, 1, 1, "頁次 Sheet *", LBL, "left"),
+    # ── 下層,col 6-13 ────────────────────────────────────────
+    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "left"),
+    field(3, 10, 1, 2, "圖名 Title", LBL, "left"),
+    field(3, 12, 1, 1, "圖幅 Size", LBL, "left"),
+    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "left"),
     # 法定所有者:無標題列,單一大格(跨兩欄 240px × 4 列高),放公司商標
-    field(3, 5, 4, 2, f"LOGO:{LOGO_NAME}"),
-    field(4, 7, 3, 2, "%{doc-id}", 11),
-    field(4, 9, 1, 2, "%{title}", 10, "center", "center", "title"),
-    field(4, 11, 1, 1, "A3", 10),
-    field(4, 12, 1, 1, "%{folio}", 10, "center", "center", "folio"),
-    field(5, 9, 1, 2, "補充圖名 Supplementary title", LBL, "left"),
-    field(6, 9, 1, 2, "%{subtitle}", 10),
-    field(5, 11, 1, 2, "備註 Remarks", LBL, "left"),
-    field(6, 11, 1, 2, "%{remarks}", 10),
+    field(3, 6, 4, 2, f"LOGO:{LOGO_NAME}"),
+    field(4, 8, 3, 2, "%{doc-id}", 11),
+    field(4, 10, 1, 2, "%{title}", 10, "center", "center", "title"),
+    field(4, 12, 1, 1, "A3", 10),
+    field(4, 13, 1, 1, "%{folio}", 10, "center", "center", "folio"),
+    field(5, 10, 1, 2, "補充圖名 Supplementary title", LBL, "left"),
+    field(6, 10, 1, 2, "%{subtitle}", 10),
+    field(5, 12, 1, 2, "備註 Remarks", LBL, "left"),
+    field(6, 12, 1, 2, "%{remarks}", 10),
 ]
 
 

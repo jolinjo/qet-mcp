@@ -23,7 +23,7 @@ QET_VERSION = "0.100.0"
 # 200px (50mm) title block the folio proportions print true on A3.
 FOLIO_A3_LANDSCAPE = {
     "cols": "16", "colsize": "100",
-    "rows": "9", "rowsize": "100",
+    "rows": "10", "rowsize": "101",
 }
 
 
@@ -218,6 +218,21 @@ class Diagram:
         inst = ElementInstance(definition, x, y, label, orientation, prefix)
         self.elements.append(inst)
         return inst
+
+    #: revision-table columns bound by the titleblock (rev{n}-<field>)
+    REVISION_FIELDS = ("idx", "date", "desc", "zone", "by", "appd")
+
+    def set_revisions(self, revisions: "list[dict]", rows: int = 6) -> None:
+        """Fill the titleblock revision history (rev1..rows).
+
+        Each dict may hold idx/date/desc/zone/by/appd. Unused rows are
+        set to empty strings so QET renders blanks instead of the raw
+        %{rev3-idx} placeholders.
+        """
+        for i in range(1, rows + 1):
+            entry = revisions[i - 1] if i <= len(revisions) else {}
+            for key in self.REVISION_FIELDS:
+                self.properties[f"rev{i}-{key}"] = str(entry.get(key, ""))
 
     def connect(self, t1: TerminalRef, t2: TerminalRef,
                 path: "list[tuple[str, float]] | None" = None,

@@ -110,6 +110,15 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
   d.properties.update({"doc-id": "...", "doc-type": "&EFS 電路圖", ...})
   ```
 
+- **folio 必用 `FOLIO_A3_LANDSCAPE`**(16×100 + **10×101**):含標題欄後
+  總比例 = A3(1.414),GUI/CLI 匯出 PDF 才不會下方留白。旁的 rows 值
+  會讓 folio 比例偏離 A3。
+- **修訂歷史(累積、每列變數)**:修訂表每列綁 `rev{n}-idx/date/desc/
+  zone/by/appd`,用 `diagram.set_revisions([{...}, ...])` 填(未用列自動
+  補空,避免顯示 `%{rev3-idx}` 原文)。zone = 本次修改的圖面座標(如 D5)。
+- **輸出 PDF**:`--cli-render out.pdf`(QET fork ≥0.100.16)——頁面=folio
+  實際尺寸、零邊界,比例正確無空白;GUI「匯出 PDF」到 A3 紙也吻合(因
+  folio 已是 A3 比例)。
 - 變數:內建 `%{author} %{date} %{title} %{indexrev} %{folio}`;
   自訂(經 `d.properties` / GUI 標題欄屬性自訂表):`%{techref}
   %{checked-by} %{approved-by} %{doc-type} %{doc-status} %{subtitle}
