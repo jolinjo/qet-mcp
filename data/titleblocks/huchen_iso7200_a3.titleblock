@@ -436,7 +436,7 @@
     </field>
     <field row="3" col="11" fontsize="7" align="left" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
-        <translation lang="en">頁次 Sheet *</translation>
+        <translation lang="en">圖幅 Size</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -444,7 +444,7 @@
     </field>
     <field row="3" col="12" fontsize="7" align="left" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
-        <translation lang="en">圖幅 Size</translation>
+        <translation lang="en">頁次 Sheet *</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -474,17 +474,17 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="11" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="folio">
+    <field row="4" col="11" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
-        <translation lang="en">%{folio}</translation>
+        <translation lang="en">A3</translation>
       </value>
       <label>
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="12" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="">
+    <field row="4" col="12" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="folio">
       <value>
-        <translation lang="en">A3</translation>
+        <translation lang="en">%{folio}</translation>
       </value>
       <label>
         <translation lang="en" />
