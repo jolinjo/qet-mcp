@@ -48,6 +48,9 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 
 ## 3. 座標與佈局規範
 
+- **尺標 4px/mm**;**A3 橫式 folio 用 `qet_xml.model.FOLIO_A3_LANDSCAPE`**
+  (16 欄×100px + 9 列×100px)。標題欄是實體 mm 尺寸,folio 不用 A3 預設
+  的話比例會失真(QET 預設 17×60 頁面偏小,180mm 標題欄會佔掉 70% 寬)。
 - **格點 10px**,所有座標落格點;元件實例 x/y = 定義 hotspot 的場景座標。
 - **端子場景座標 = 實例 x/y + 定義端子 x/y**(describe/place 回傳的就是定義座標)。
 - **三相動力迴路節距 20px**:選極距 20px 的元件(斷路器 fa4202、

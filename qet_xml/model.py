@@ -17,6 +17,15 @@ from pathlib import Path
 
 QET_VERSION = "0.100.0"
 
+# Folio presets at the toolchain scale of 4 px/mm (matches
+# data/titleblocks/*). A3 landscape 420x297mm: inner drawing area
+# 16 cols x 100px = 1600px (=400mm), 9 rows x 100px = 900px; with the
+# 224px (56mm) title block the folio proportions print true on A3.
+FOLIO_A3_LANDSCAPE = {
+    "cols": "16", "colsize": "100",
+    "rows": "9", "rowsize": "100",
+}
+
 
 def _new_uuid() -> str:
     return "{" + str(_uuid.uuid4()) + "}"
