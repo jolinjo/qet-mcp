@@ -71,5 +71,17 @@
     "path": "10_electric/99_miscellaneous_unsorted/cpi.elmt",
     "terminals": "1 上 / 2 下,具名",
     "verified": true
+  },
+  "emergency_stop": {
+    "zh": "急停按鈕 緊急停止 急停",
+    "path": "10_electric/10_allpole/380_signaling_operating/20_push_buttons/arret_urgence_verrou.elmt",
+    "terminals": "無名 2 端子 idx0 上/idx1 下;急停為常閉 NC(ISO 13850)",
+    "verified": true
+  },
+  "terminal_block": {
+    "zh": "端子台 端子 -X",
+    "path": "10_electric/10_allpole/130_terminals_terminal_strips/borne_3.elmt",
+    "terminals": "無名 2 端子 idx0 上/idx1 下",
+    "verified": true
   }
 }
