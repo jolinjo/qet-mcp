@@ -66,8 +66,11 @@ class ElementDefinition:
         if isinstance(key, int):
             return self.terminals[key]
         for t in self.terminals:
-            if t.name == key:
+            if t.name == key and t.name:
                 return t
+        # fallback for unnamed terminals: numeric string = index
+        if key.isdigit() and int(key) < len(self.terminals):
+            return self.terminals[int(key)]
         raise KeyError(f"no terminal named {key!r} in {self.embed_path} "
                        f"(have: {[t.name for t in self.terminals]})")
 

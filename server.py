@@ -60,8 +60,9 @@ def _find_instance(diagram, ref: str):
 
 
 def _terminals_info(definition: ElementDefinition):
-    return [{"name": t.name, "uuid": t.uuid, "x": t.x, "y": t.y,
-             "orientation": t.orientation} for t in definition.terminals]
+    return [{"index": i, "name": t.name, "uuid": t.uuid, "x": t.x, "y": t.y,
+             "orientation": t.orientation}
+            for i, t in enumerate(definition.terminals)]
 
 
 def _run_cli(*args: str) -> dict:
@@ -250,7 +251,8 @@ TOOLS = {
     "qet_draw_conductor": (
         tool_draw_conductor, "Connect two element terminals with a "
         "conductor. Elements are referenced by label (e.g. '-K1') or uuid; "
-        "terminals by name (see qet_describe_element). Routing is automatic.",
+        "terminals by name, or by numeric index for unnamed terminals "
+        "(see qet_describe_element). Routing is automatic.",
         _schema({"from_element": S, "from_terminal": S, "to_element": S,
                  "to_terminal": S, "num": S, "color": S, "folio": I},
                 ["from_element", "from_terminal", "to_element",
