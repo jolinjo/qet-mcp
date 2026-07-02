@@ -45,24 +45,25 @@ ROWS = ";".join(["16"] * 7)   # 7 x 16 px = 112 px
 LBL = 8   # label font
 
 
+LBL_BG = "#d9d9d9"     # 欄位標籤底色(淺灰)
+
+
 def field(row, col, rowspan, colspan, text, fontsize=10, align="center",
-          valign="center", name=""):
-    return (row, col, rowspan, colspan, text, fontsize, align, valign, name)
-
-
-LBL_ALIGN = "center"   # 欄位標籤對齊(置中)
+          valign="center", name="", bgcolor=""):
+    return (row, col, rowspan, colspan, text, fontsize, align, valign,
+            name, bgcolor)
 
 
 CELLS = [
     # ── 左區:修訂記錄表(表頭 + 6 資料列),col 0-5 ──────────────
     # 每列綁「不同」變數 rev{n}-*,可累積完整修訂歷史(而非只顯示當前
     # 版次的單一組值);位置欄記錄本次修改在圖面的座標/區域。
-    field(0, 0, 1, 1, "版次 Rev.", LBL),
-    field(0, 1, 1, 1, "日期 Date", LBL),
-    field(0, 2, 1, 1, "座標 Coord.", LBL),
-    field(0, 3, 1, 1, "修改內容 Description of revision", LBL),
-    field(0, 4, 1, 1, "修改 By", LBL),
-    field(0, 5, 1, 1, "核准 Appd", LBL),
+    field(0, 0, 1, 1, "版次 Rev.", LBL, bgcolor=LBL_BG),
+    field(0, 1, 1, 1, "日期 Date", LBL, bgcolor=LBL_BG),
+    field(0, 2, 1, 1, "座標 Coord.", LBL, bgcolor=LBL_BG),
+    field(0, 3, 1, 1, "修改內容 Description of revision", LBL, bgcolor=LBL_BG),
+    field(0, 4, 1, 1, "修改 By", LBL, bgcolor=LBL_BG),
+    field(0, 5, 1, 1, "核准 Appd", LBL, bgcolor=LBL_BG),
     *[f for n in range(1, REV_ROWS + 1) for f in (
         field(n, 0, 1, 1, f"%{{rev{n}-idx}}", 8),
         field(n, 1, 1, 1, f"%{{rev{n}-date}}", 8),
@@ -72,14 +73,14 @@ CELLS = [
         field(n, 5, 1, 1, f"%{{rev{n}-appd}}", 8))],
 
     # ── 上層 8 欄位(每欄 120px),col 6-13 ─────────────────────
-    field(0, 6, 1, 1, "修訂索引 Revision index", LBL, "center"),
-    field(0, 7, 1, 1, "文件類別 Document type", LBL, "center"),
-    field(0, 8, 1, 1, "技術參考 Technical reference", LBL, "center"),
-    field(0, 9, 1, 1, "繪製 Created by", LBL, "center"),
-    field(0, 10, 1, 1, "審核 Checked by", LBL, "center"),
-    field(0, 11, 1, 1, "核准 Approved by", LBL, "center"),
-    field(0, 12, 1, 1, "文件狀態 Document status", LBL, "center"),
-    field(0, 13, 1, 1, "發行日期 Date of issue *", LBL, "center"),
+    field(0, 6, 1, 1, "修訂索引 Revision index", LBL, "center", bgcolor=LBL_BG),
+    field(0, 7, 1, 1, "文件類別 Document type", LBL, "center", bgcolor=LBL_BG),
+    field(0, 8, 1, 1, "技術參考 Technical reference", LBL, "center", bgcolor=LBL_BG),
+    field(0, 9, 1, 1, "繪製 Created by", LBL, "center", bgcolor=LBL_BG),
+    field(0, 10, 1, 1, "審核 Checked by", LBL, "center", bgcolor=LBL_BG),
+    field(0, 11, 1, 1, "核准 Approved by", LBL, "center", bgcolor=LBL_BG),
+    field(0, 12, 1, 1, "文件狀態 Document status", LBL, "center", bgcolor=LBL_BG),
+    field(0, 13, 1, 1, "發行日期 Date of issue *", LBL, "center", bgcolor=LBL_BG),
     field(1, 6, 2, 1, "%{indexrev}", 10),
     field(1, 7, 2, 1, "%{doc-type}", 10),
     field(1, 8, 2, 1, "%{techref}", 10),
@@ -90,19 +91,19 @@ CELLS = [
     field(1, 13, 2, 1, "%{date}", 10, "center", "center", "date"),
 
     # ── 下層,col 6-13 ────────────────────────────────────────
-    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "center"),
-    field(3, 10, 1, 2, "圖名 Title", LBL, "center"),
-    field(3, 12, 1, 1, "圖幅 Size", LBL, "center"),
-    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "center"),
+    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "center", bgcolor=LBL_BG),
+    field(3, 10, 1, 2, "圖名 Title", LBL, "center", bgcolor=LBL_BG),
+    field(3, 12, 1, 1, "圖幅 Size", LBL, "center", bgcolor=LBL_BG),
+    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "center", bgcolor=LBL_BG),
     # 法定所有者:無標題列,單一大格(跨兩欄 240px × 4 列高),放公司商標
     field(3, 6, 4, 2, f"LOGO:{LOGO_NAME}"),
     field(4, 8, 3, 2, "%{doc-id}", 11),
     field(4, 10, 1, 2, "%{title}", 10, "center", "center", "title"),
     field(4, 12, 1, 1, "A3", 10),
     field(4, 13, 1, 1, "%{folio}", 10, "center", "center", "folio"),
-    field(5, 10, 1, 2, "補充圖名 Supplementary title", LBL, "center"),
+    field(5, 10, 1, 2, "補充圖名 Supplementary title", LBL, "center", bgcolor=LBL_BG),
     field(6, 10, 1, 2, "%{subtitle}", 10),
-    field(5, 12, 1, 2, "備註 Remarks", LBL, "center"),
+    field(5, 12, 1, 2, "備註 Remarks", LBL, "center", bgcolor=LBL_BG),
     field(6, 12, 1, 2, "%{remarks}", 10),
 ]
 
@@ -118,7 +119,8 @@ def main() -> None:
     logo.text = base64.b64encode(LOGO_FILE.read_bytes()).decode("ascii")
     grid = ET.SubElement(root, "grid", {"cols": COLS, "rows": ROWS})
 
-    for row, col, rowspan, colspan, text, fontsize, align, valign, name in CELLS:
+    for (row, col, rowspan, colspan, text, fontsize, align, valign,
+         name, bgcolor) in CELLS:
         if text.startswith("LOGO:"):
             f = ET.SubElement(grid, "logo", {
                 "row": str(row), "col": str(col),
@@ -130,6 +132,8 @@ def main() -> None:
                 "fontsize": str(fontsize), "align": align, "valign": valign,
                 "displaylabel": "false", "hadjust": "true", "name": name,
             })
+        if bgcolor:
+            f.set("bgcolor", bgcolor)
         # QET span semantics: number of EXTRA cells covered
         if rowspan > 1:
             f.set("rowspan", str(rowspan - 1))
