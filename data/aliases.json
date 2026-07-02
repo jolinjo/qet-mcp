@@ -1,0 +1,75 @@
+{
+  "_comment": "已驗證可用的「角色 → 元件」對照。端子節距 20px、端子可接線都確認過(馬達 DOL 迴路實戰)。zh 為搜尋時可命中的角色名。",
+  "motor_3ph": {
+    "zh": "三相馬達",
+    "path": "10_electric/10_allpole/391_consumers_actuators/10_engines/moteur_tri.elmt",
+    "terminals": "U1/V1/W1 上方 20px 節距 + PE",
+    "verified": true
+  },
+  "motor_breaker_3p": {
+    "zh": "馬達斷路器",
+    "path": "10_electric/10_allpole/200_fuses_protective_gears/12_magneto_thermal_circuit_breakers/fa4202_disjoncteur_moteur_3p.elmt",
+    "terminals": "1/3/5 上、2/4/6 下,節距 20px,具名",
+    "verified": true
+  },
+  "contactor_power_4p": {
+    "zh": "接觸器主觸點",
+    "path": "10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/02_power_contacts/com_puiss6.elmt",
+    "terminals": "4 極無名端子,x=-30/-10/10/30、上 y=-20 下 y=20;idx 0/1=第一極",
+    "verified": true
+  },
+  "thermal_relay_3p": {
+    "zh": "熱繼電器",
+    "path": "10_electric/10_allpole/200_fuses_protective_gears/30_thermal_relays/relais_therm4_wide.elmt",
+    "terminals": "3 極無名,節距 20px;注意 idx:0/1@x0、4/5@x20、2/3@x40",
+    "verified": true
+  },
+  "thermal_nc_contact": {
+    "zh": "熱繼常閉觸點",
+    "path": "10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/15_protection_contacts/act_thermique_nf_esclave.elmt",
+    "terminals": "無名 2 端子,idx0 上/idx1 下",
+    "verified": true
+  },
+  "pushbutton_no": {
+    "zh": "啟動按鈕 常開按鈕",
+    "path": "10_electric/10_allpole/380_signaling_operating/20_push_buttons/poussoir.elmt",
+    "terminals": "無名 2 端子,idx0 上/idx1 下",
+    "verified": true
+  },
+  "pushbutton_nc": {
+    "zh": "停止按鈕 常閉按鈕",
+    "path": "10_electric/10_allpole/380_signaling_operating/20_push_buttons/poussoir_nf.elmt",
+    "terminals": "無名 2 端子,idx0 上/idx1 下",
+    "verified": true
+  },
+  "aux_contact_no": {
+    "zh": "輔助常開觸點 自保持觸點",
+    "path": "10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/con_simple.elmt",
+    "terminals": "無名 2 端子,idx0 上/idx1 下",
+    "verified": true
+  },
+  "aux_contact_nc": {
+    "zh": "輔助常閉觸點",
+    "path": "10_electric/10_allpole/310_relays_contactors_contacts/02_contacts_cross_referencing/01_auxiliary_contacts/con_simple_nf.elmt",
+    "terminals": "無名 2 端子(依 con_simple 慣例 idx0 上/idx1 下,放置前建議 describe 確認)",
+    "verified": false
+  },
+  "contactor_coil": {
+    "zh": "接觸器線圈",
+    "path": "10_electric/10_allpole/310_relays_contactors_contacts/01_coils/bobine3.elmt",
+    "terminals": "A1 上 / A2 下,具名",
+    "verified": true
+  },
+  "indicator_lamp_flash": {
+    "zh": "閃光指示燈",
+    "path": "10_electric/10_allpole/380_signaling_operating/11_optical_signaling/voyant_flash.elmt",
+    "terminals": "A1 上 / A2 下,具名",
+    "verified": true
+  },
+  "guard_isolation_cpi": {
+    "zh": "絕緣監視器",
+    "path": "10_electric/99_miscellaneous_unsorted/cpi.elmt",
+    "terminals": "1 上 / 2 下,具名",
+    "verified": true
+  }
+}

@@ -22,6 +22,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from qet_xml import ElementDefinition, QetProject  # noqa: E402
+from qet_xml import index as elmt_index  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 QET_BINARY = Path(os.environ.get(
@@ -87,6 +88,53 @@ def _element_names(path: Path) -> "dict[str, str]":
         return {}
 
 
+_index_cache: "dict | None" = None
+_synonyms: "dict | None" = None
+_aliases: "dict | None" = None
+
+
+def _index() -> dict:
+    global _index_cache
+    if _index_cache is None:
+        _index_cache = elmt_index.load_index(
+            ELEMENTS_DIR, ROOT / ".cache" / "elements_index.json")
+    return _index_cache
+
+
+def _load_data(name: str) -> dict:
+    try:
+        return json.loads((ROOT / "data" / name).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _get_synonyms() -> dict:
+    global _synonyms
+    if _synonyms is None:
+        _synonyms = _load_data("synonyms.json")
+    return _synonyms
+
+
+def _get_aliases() -> dict:
+    global _aliases
+    if _aliases is None:
+        _aliases = {k: v for k, v in _load_data("aliases.json").items()
+                    if not k.startswith("_")}
+    return _aliases
+
+
+def _alias_hits(query: str) -> "list[dict]":
+    q = query.lower()
+    hits = []
+    for role, info in _get_aliases().items():
+        haystack = (role + " " + info.get("zh", "")).lower()
+        if all(tok in haystack for tok in q.split()):
+            hits.append({"alias": role, "path": info["path"],
+                         "terminals_note": info.get("terminals", ""),
+                         "verified": info.get("verified", False)})
+    return hits
+
+
 # --------------------------------------------------------------------------- #
 # tools
 # --------------------------------------------------------------------------- #
@@ -114,24 +162,30 @@ def tool_open_project(path: str) -> dict:
     }
 
 
-def tool_search_elements(query: str, limit: int = 12) -> dict:
-    query_l = query.lower()
-    hits = []
-    for path in sorted(ELEMENTS_DIR.rglob("*.elmt")):
-        rel = path.relative_to(ELEMENTS_DIR).as_posix()
-        names = None
-        if query_l in rel.lower():
-            names = _element_names(path)
-        else:  # match against localized display names too
-            names = _element_names(path)
-            if not any(query_l in n.lower() for n in names.values()):
-                continue
-        hits.append({"path": rel,
-                     "name_en": names.get("en", ""),
-                     "name_zh": names.get("zh", "")})
-        if len(hits) >= limit:
-            break
-    return {"query": query, "hits": hits}
+def tool_search_elements(query: str, limit: int = 12,
+                         min_terminals: int = 0) -> dict:
+    records = elmt_index.search(_index(), query, _get_synonyms(),
+                                limit=limit, min_terminals=min_terminals)
+    hits = [{
+        "path": r["path"],
+        "name_en": r["names"].get("en", ""),
+        "name_zh": r["names"].get("zh", ""),
+        "terminals": [{"index": i, "name": t["name"], "x": t["x"],
+                       "y": t["y"], "orientation": t["orientation"]}
+                      for i, t in enumerate(r["terminals"])],
+        "pitch": r["pitch"],
+    } for r in records]
+    return {"query": query,
+            "aliases": _alias_hits(query),   # curated, verified roles first
+            "hits": hits}
+
+
+def tool_list_categories(prefix: str = "") -> dict:
+    return elmt_index.categories(_index(), prefix)
+
+
+def tool_list_aliases() -> dict:
+    return {"aliases": [{"role": k, **v} for k, v in _get_aliases().items()]}
 
 
 def tool_describe_element(elmt_path: str) -> dict:
@@ -233,10 +287,23 @@ TOOLS = {
         "the current project. Returns folio summaries.",
         _schema({"path": S}, ["path"])),
     "qet_search_elements": (
-        tool_search_elements, "Search the QET element library by keyword "
-        "(matches file paths and localized display names). Returns .elmt "
-        "paths usable with qet_describe_element / qet_place_element.",
-        _schema({"query": S, "limit": I}, ["query"])),
+        tool_search_elements, "Search the QET element library (indexed; "
+        "zh/en/fr synonyms understood). Hits include full terminal info and "
+        "pole pitch, so qet_describe_element is usually unnecessary. "
+        "'aliases' lists curated, verified role matches — prefer them. "
+        "Use min_terminals=2 to exclude decorative symbols.",
+        _schema({"query": S, "limit": I, "min_terminals": I}, ["query"])),
+    "qet_list_categories": (
+        tool_list_categories, "Browse the element library taxonomy: list "
+        "sub-categories and element counts under a path prefix (empty = "
+        "root). Useful when keyword search misses.",
+        _schema({"prefix": S}, [])),
+    "qet_list_aliases": (
+        tool_list_aliases, "List curated element aliases: verified "
+        "role-to-element mappings (motor_3ph, contactor_coil, "
+        "pushbutton_no, ...) with terminal notes. Fastest way to pick "
+        "elements for standard circuits.",
+        _schema({}, [])),
     "qet_describe_element": (
         tool_describe_element, "Describe one .elmt element definition: "
         "localized names, size/hotspot, and its terminals (name, uuid, "
