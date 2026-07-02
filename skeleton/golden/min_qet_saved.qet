@@ -1,0 +1,98 @@
+<project title="MCP walking skeleton" version="0.100.1">
+    <properties>
+        <property name="saveddate" show="1">2026/7/2</property>
+        <property name="saveddate-eu" show="1">02-07-2026</property>
+        <property name="saveddate-us" show="1">2026-07-02</property>
+        <property name="savedfilename" show="1">min</property>
+        <property name="savedfilepath" show="1">/Users/jason_m3max/Documents/ClaudeCodeDev/qet-mcp/skeleton/out/min.qet</property>
+        <property name="savedtime" show="1">17:52</property>
+    </properties>
+    <newdiagrams>
+        <border cols="17" colsize="60" displaycols="true" displayrows="true" rows="8" rowsize="80"/>
+        <inset author="" auto_page_num="" date="null" displayAt="bottom" filename="" folio="" indexrev="" locmach="" plant="" title="" version=""/>
+        <conductors bicolor="false" bus="" cable="" color2="#000000" condsize="1" conductor_color="" conductor_section="" dash-size="2" displaytext="1" formula="" function="" horizontal-alignment="AlignBottom" horizrotatetext="0" num="_" numsize="7" onetextperfolio="0" tension_protocol="" text_color="#000000" type="multi" vertical-alignment="AlignRight" vertirotatetext="270"/>
+        <report label="%f-%l%c"/>
+        <xrefs>
+            <xref delayprefix="" displayhas="cross" master_label="%f-%l%c" offset="0" powerprefix="" showpowerctc="true" showterminalname="true" slave_label="(%f-%l%c)" snapto="label" switchprefix="" type="commutator" xrefpos=""/>
+            <xref delayprefix="" displayhas="cross" master_label="%f-%l%c" offset="40" powerprefix="" showpowerctc="true" showterminalname="true" slave_label="(%f-%l%c)" snapto="label" switchprefix="" type="coil" xrefpos="AlignTop"/>
+            <xref delayprefix="" displayhas="cross" master_label="%f-%l%c" offset="0" powerprefix="" showpowerctc="true" showterminalname="true" slave_label="(%f-%l%c)" snapto="label" switchprefix="" type="protection" xrefpos=""/>
+        </xrefs>
+        <conductors_autonums current_autonum="" freeze_new_conductors="false"/>
+        <folio_autonums/>
+        <element_autonums current_autonum="" freeze_new_elements="false"/>
+    </newdiagrams>
+    <diagram author="qet-mcp" auto_page_num="" cols="17" colsize="60" date="null" displayAt="bottom" displaycols="true" displayrows="true" filename="" folio="" freezeNewConductor="false" freezeNewElement="false" height="660" indexrev="" locmach="" order="1" plant="" rows="8" rowsize="80" title="skeleton" version="0.100.1-dev">
+        <defaultconductor bicolor="false" bus="" cable="" color2="#000000" condsize="1" conductor_color="" conductor_section="" dash-size="1" displaytext="1" formula="" function="" horizontal-alignment="AlignBottom" horizrotatetext="0" num="_" numsize="9" onetextperfolio="0" tension_protocol="" text_color="#000000" type="multi" vertical-alignment="AlignRight" vertirotatetext="270"/>
+        <elements>
+            <element freezeLabel="false" orientation="0" prefix="B" type="embed://import/cpi.elmt" uuid="{9f4fb801-be19-4099-b982-1f2641ddad5a}" x="200" y="320" z="10">
+                <terminals>
+                    <terminal id="0" orientation="0" x="0" y="-16"/>
+                    <terminal id="1" orientation="2" x="0" y="16"/>
+                </terminals>
+                <inputs/>
+                <elementInformations>
+                    <elementInformation name="label" show="1">-B2</elementInformation>
+                </elementInformations>
+                <dynamic_texts/>
+                <texts_groups/>
+            </element>
+            <element freezeLabel="false" orientation="0" prefix="B" type="embed://import/cpi.elmt" uuid="{79b19a37-8e98-443e-b720-b16b0bc76ca2}" x="200" y="200" z="10">
+                <terminals>
+                    <terminal id="2" orientation="0" x="0" y="-16"/>
+                    <terminal id="3" orientation="2" x="0" y="16"/>
+                </terminals>
+                <inputs/>
+                <elementInformations>
+                    <elementInformation name="label" show="1">-B1</elementInformation>
+                </elementInformations>
+                <dynamic_texts/>
+                <texts_groups/>
+            </element>
+        </elements>
+        <conductors>
+            <conductor bicolor="false" bus="" cable="" color2="#000000" condsize="1" conductor_color="" conductor_section="" dash-size="1" displaytext="1" element1="{79b19a37-8e98-443e-b720-b16b0bc76ca2}" element1_label="-B1" element1_name="CPI" element2="{9f4fb801-be19-4099-b982-1f2641ddad5a}" element2_label="-B2" element2_name="CPI" formula="" freezeLabel="false" function="" horizontal-alignment="AlignBottom" horizrotatetext="0" num="101" numsize="9" onetextperfolio="0" tension_protocol="" terminal1="{b94d18f8-9ad7-4c6a-a10c-1edd09d97b4f}" terminal2="{fdc849e2-24c2-4da0-8749-c89aab1818c9}" terminalname1="2" terminalname2="1" text_color="#000000" type="multi" vertical-alignment="AlignRight" vertirotatetext="0" x="0" y="0">
+                <sequentialNumbers/>
+            </conductor>
+        </conductors>
+    </diagram>
+    <collection>
+        <category name="import">
+            <element name="cpi.elmt">
+                <definition height="60" hotspot_x="46" hotspot_y="30" link_type="simple" type="element" version="0.100.0" width="60">
+                    <uuid uuid="{14b461f5-724f-b3b7-1738-564ef7dcbda1}"/>
+                    <names>
+                        <name lang="ar">مراقب دائم للعزل</name>
+                        <name lang="ca">Aïllament de guàrdia</name>
+                        <name lang="cs">Kontrola izolačního stavu</name>
+                        <name lang="de">Isolationsüberwachung (ICC)</name>
+                        <name lang="en">Guard isolation</name>
+                        <name lang="es">Aparato de vigilencia de aislamiento</name>
+                        <name lang="fr">CPI</name>
+                        <name lang="it">Controllo isolamento</name>
+                        <name lang="nl">Isolatiebewaking</name>
+                        <name lang="pl">UKSI</name>
+                        <name lang="pt">Dispositivo de guarda de isolamento</name>
+                        <name lang="ru">Контроль изоляции</name>
+                        <name lang="zh">CPI</name>
+                    </names>
+                    <informations>Author: The QElectroTech team
+License: see http://qelectrotech.org/wiki/doc/elements_license</informations>
+                    <description>
+                        <polygon antialias="true" style="line-style:normal;line-weight:normal;filling:black;color:black" x1="3" x2="5" x3="0" y1="0" y2="-5" y3="-3"/>
+                        <dynamic_text Halignment="AlignLeft" Valignment="AlignTop" font="Liberation Sans,9,-1,5,50,0,0,0,0,0,Regular" frame="false" keep_visual_rotation="false" rotation="0" text_from="ElementInfo" text_width="-1" uuid="{d4b4ff03-d2f0-4d99-9dee-7f5bee1fc470}" x="13" y="-6.95" z="2">
+                            <text/>
+                            <info_name>label</info_name>
+                        </dynamic_text>
+                        <ellipse antialias="true" height="18" style="line-style:normal;line-weight:normal;filling:none;color:black" width="18" x="-9" y="-9"/>
+                        <line antialias="false" end1="none" end2="none" length1="1.5" length2="1.5" style="line-style:normal;line-weight:normal;filling:none;color:black" x1="-5" x2="4" y1="5" y2="-4"/>
+                        <text color="#000000" font="Liberation Sans,9,-1,5,50,0,0,0,0,0,Regular" rotation="0" text="CPI" x="-31.5" y="4.75"/>
+                        <line antialias="false" end1="none" end2="none" length1="1.5" length2="1.5" style="line-style:normal;line-weight:normal;filling:none;color:black" x1="0" x2="0" y1="9.5" y2="20"/>
+                        <line antialias="false" end1="none" end2="none" length1="1.5" length2="1.5" style="line-style:normal;line-weight:normal;filling:none;color:black" x1="0" x2="0" y1="-20" y2="-9.5"/>
+                        <terminal name="2" orientation="s" type="Generic" uuid="{b94d18f8-9ad7-4c6a-a10c-1edd09d97b4f}" x="0" y="20"/>
+                        <terminal name="1" orientation="n" type="Generic" uuid="{fdc849e2-24c2-4da0-8749-c89aab1818c9}" x="0" y="-20"/>
+                    </description>
+                </definition>
+            </element>
+        </category>
+    </collection>
+</project>
