@@ -603,12 +603,14 @@ def tool_generate_bom(all_folios: bool = True, folio: int = 0) -> dict:
 def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
                     name_en: str = "", filename: str = "",
                     pin_layer: str = "pin", scale: float = 4.0,
-                    split: str = "block", out_path: str = "") -> dict:
+                    split: str = "block", line_weight: str = "thin",
+                    out_path: str = "") -> dict:
     """Convert a DXF drawing into a QET .elmt and save it into the company
     element collection. Terminals come from the `pin_layer`; geometry from
     the rest. `split` = how many elements: "block" (one per DXF block, else
     single), "cluster" (split a flat drawing into spatially-separate parts →
-    one each), or "none" (force single)."""
+    one each), or "none" (force single). `line_weight` = pen thickness
+    thin(0.5px)/normal(1px)/hight(2px); thin suits dense CAD drawings."""
     try:
         sys.path.insert(0, str(ROOT / "tools"))
         from dxf_to_elmt import convert
@@ -623,7 +625,8 @@ def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
         out = COMPANY_DIR / category / f"{stem}.elmt"
     out.parent.mkdir(parents=True, exist_ok=True)
     res = convert(dxf_path, str(out), name=name, scale=scale,
-                  pin_layer=pin_layer, name_en=name_en or None, split=split)
+                  pin_layer=pin_layer, name_en=name_en or None, split=split,
+                  line_weight=line_weight)
     res["dir"] = str(out.parent)
     # a DXF with block definitions yields one element per block (named by
     # the block); otherwise the whole drawing is one element at `out`
@@ -815,6 +818,8 @@ TOOLS = {
                  "filename": S, "pin_layer": S, "scale": N,
                  "split": {"type": "string",
                            "enum": ["block", "cluster", "none"]},
+                 "line_weight": {"type": "string",
+                                 "enum": ["thin", "normal", "hight"]},
                  "out_path": S},
                 ["dxf_path", "name"])),
 }

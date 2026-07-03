@@ -23,7 +23,12 @@ from pathlib import Path
 import ezdxf
 from ezdxf import path as ezpath
 
-STYLE = "line-style:normal;line-weight:normal;filling:none;color:black"
+# QET pen widths: thin=0.5px, normal=1.0px, hight=2.0px (elementpicture
+# factory.cpp). Detailed CAD drawings have many close lines → default thin.
+def _style(line_weight="thin"):
+    return f"line-style:normal;line-weight:{line_weight};filling:none;color:black"
+
+
 FONT = "Sans Serif,9,-1,5,50,0,0,0,0,0"
 
 
@@ -174,9 +179,11 @@ def cluster_entities(entities, gap, min_ents=5):
 
 
 def _build_element(entities, out_path, name, scale, pin_layer, name_en,
-                   label, origin=None):
+                   label, origin=None, line_weight="thin"):
     """Build one .elmt from an iterable of DXF entities. `origin` (DXF
-    coords) is the hotspot; if None the bounding-box centre is used."""
+    coords) is the hotspot; if None the bounding-box centre is used.
+    `line_weight` = QET pen weight (thin/normal/hight)."""
+    style = _style(line_weight)
     entities = list(entities)
     polys, ellipses = load_polylines(entities, skip_layer=pin_layer)
     has_pin = any(e.dxf.layer == pin_layer for e in entities)
@@ -240,7 +247,7 @@ def _build_element(entities, out_path, name, scale, pin_layer, name_en,
             attrs[f"y{i}"] = str(ty(y))
         attrs["closed"] = "true" if closed else "false"
         attrs["antialias"] = "true"
-        attrs["style"] = STYLE
+        attrs["style"] = style
         ET.SubElement(desc, "polygon", attrs)
 
     for ecx, ecy, a, b in ellipses:
@@ -248,7 +255,7 @@ def _build_element(entities, out_path, name, scale, pin_layer, name_en,
             "x": str(tx(ecx - a)), "y": str(ty(ecy + b)),
             "width": str(round(2 * a * scale, 2)),
             "height": str(round(2 * b * scale, 2)),
-            "antialias": "true", "style": STYLE})
+            "antialias": "true", "style": style})
 
     # terminals from the pin layer (snapped to 10px grid so conductors
     # route cleanly); orientation from which side of the box it sits on;
@@ -275,7 +282,7 @@ def _build_element(entities, out_path, name, scale, pin_layer, name_en,
 
 def convert(dxf_path, out_path, name="imported", scale=4.0,
             pin_layer="pin", name_en=None, label=True, split="block",
-            cluster_gap=None):
+            cluster_gap=None, line_weight="thin"):
     """DXF → .elmt. `split` chooses how many elements to emit:
       "block"   — one per block definition (named by block, hotspot at its
                   base point); if the DXF has no blocks, the whole drawing
@@ -302,7 +309,8 @@ def convert(dxf_path, out_path, name="imported", scale=4.0,
                 try:
                     elements.append(_build_element(
                         list(b), dest, b.name, scale, pin_layer,
-                        name_en=None, label=label, origin=(bp.x, bp.y)))
+                        name_en=None, label=label, origin=(bp.x, bp.y),
+                        line_weight=line_weight))
                 except ValueError:
                     pass    # empty/degenerate block — skip
             return {"mode": "blocks", "count": len(elements),
@@ -322,14 +330,14 @@ def convert(dxf_path, out_path, name="imported", scale=4.0,
             try:
                 elements.append(_build_element(
                     g, dest, f"{name}_{i}", scale, pin_layer,
-                    name_en=None, label=label))
+                    name_en=None, label=label, line_weight=line_weight))
             except ValueError:
                 pass
         return {"mode": "clusters", "count": len(elements),
                 "gap": gap, "elements": elements}
 
     st = _build_element(list(doc.modelspace()), out_path, name, scale,
-                        pin_layer, name_en, label)
+                        pin_layer, name_en, label, line_weight=line_weight)
     return {"mode": "single", "count": 1, "elements": [st]}
 
 
@@ -339,4 +347,5 @@ if __name__ == "__main__":
                   a[3] if len(a) > 3 else "imported",
                   float(a[4]) if len(a) > 4 else 4.0,
                   pin_layer=a[5] if len(a) > 5 else "pin",
-                  split=a[6] if len(a) > 6 else "block"))
+                  split=a[6] if len(a) > 6 else "block",
+                  line_weight=a[7] if len(a) > 7 else "thin"))
