@@ -234,3 +234,50 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
   - `outline/`(**虎氶-外型圖**):DXF 轉入的實體外型(servo_1/2、plc、
     noise_filter…)。`qet_import_dxf` 預設 category=`outline`。
   改動任一庫後該庫版號 +1 並 rsync 到 QET-Lib push(見 QET-Lib README)。
+
+## 10. 原始 .qet XML 與導線模型(改外部專案必讀)
+
+**qet_xml 只適合「我們自建」的圖,不可 round-trip 外部/現成 .qet。** qet_xml
+的導線模型是「元件 uuid + 端子 uuid」,但 QET 實檔的導線是用**整數端子 id**;
+qet_xml 讀不進 → 存檔寫成 `element1=""`(空),**所有導線斷掉**。改現成專案
+(換圖框、改標題、加中文…)一律用 **ElementTree 原始 XML 手術**,只動要改的
+節點,`<element>`/`<conductor>` 原封不動。
+
+**.qet 接線模型(改導線/重接的關鍵):**
+- 結構:`<diagram><elements><element>…<conductors><conductor…>`。
+- **端子 id = 整張 diagram 的流水號**:走訪 `<elements>` 內每個 `<element>` 的
+  `<terminals>/<terminal id="n">`,**依文件順序從 0 連續編**(element0 的端子先、
+  再 element1…)。`id` 屬性已寫在檔內,直接讀即可。
+- **導線靠端子 id 連接**:`<conductor terminal1="A" terminal2="B" num="…"
+  …style…/>`,**不需**記元件。省略 `<segment>` 子節點 → QET 載入時自動佈線。
+- **加/重接導線**:讀兩端子的 `id`;新增或改 `<conductor>` 的 terminal1/terminal2
+  (style 屬性從既有 conductor 複製最省事)。一端可多接(接點合法)。
+  已驗證:對 industrial.qet 加一條 `<conductor terminal1=4 terminal2=7>`,QET
+  正常載入渲染。
+- **⚠ 加/刪/重排 `<element>` 時 id 會位移**:必須把**所有** `<terminal id>`
+  重新連續編號 **並**同步更新所有 `<conductor>` 的 terminal1/terminal2,否則接線
+  全亂。這正是 qet_xml round-trip 出錯的根因。純改屬性(不動元件增刪)則 id 不變、
+  最安全。
+
+## 11. 電路修改／合併 SOP(改電路前必讀)
+
+**鐵律:先讀懂拓樸再動手,不可只搬幾何。** 曾把兩頁機械式上下拼貼還加高頁面,
+沒發現兩頁共用同一條母線——使用者指正「你沒去看線路內容」。
+
+**步驟:**
+1. **讀拓樸**:先萃取並陳述——這頁在做什麼?哪條是主母線?要動的元件掛在哪個
+   net?跨頁箭頭(going/coming)**同線號=同一 net**;兩頁間同號箭頭對=可直接
+   接線取代。不確定就先渲染/追線,別猜。
+2. **端子 id**:移/併元件跨 diagram 時,整批 `<terminal id>` +offset,並同步
+   所有 `<conductor>` 的 terminal1/terminal2(見 §10)。
+3. **接線點**:tap 接**離元件最近的母線端子**(如右側元件接右端端子)。**別接
+   最遠端**——會沿整條母線疊出平行線與多餘虛接點(踩過這雷)。找法:列出該 net
+   所有端子的場景 x,挑最近的。
+4. **佈局**:元件掛母線**尾端**、垂直落線(像變壓器/電源那樣 drop);串聯元件
+   (如急停雙接觸器)直向堆疊。維持頁面尺寸,能掛進空白處就不要加高頁面。
+5. **重佈線**:動完位置後清掉相關 `<conductor>` 的 `<segment>` 子節點 →
+   QET autoroute 重畫。
+6. **刪冗餘**:合併後兩頁間原本的同號跨頁箭頭對要刪(已同頁、無作用)。
+7. **交給 QET 自動**:跨頁參照、頁碼、線號位置由 QET 靠 uuid/net 自動重算;
+   刪頁後重編各 diagram 的 `order`,總頁數自動更新。
+8. **驗證**:`--cli-validate` + `qet_render` 目視;確認接線沒斷、沒多餘虛接點。

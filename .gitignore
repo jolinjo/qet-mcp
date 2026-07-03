@@ -4,3 +4,6 @@ __pycache__/
 HjLz4d5yZVIMgTEVYgek4A==
 .cache/
 ~$*
+
+# 大型 DXF 原始檔不進版(GitHub 100MB 上限)
+resource/*.dxf
