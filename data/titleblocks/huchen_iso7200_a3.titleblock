@@ -509,9 +509,9 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="4" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="title" colspan="1">
+    <field row="4" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="projecttitle" colspan="1">
       <value>
-        <translation lang="en">%{title}</translation>
+        <translation lang="en">%{projecttitle}</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -541,9 +541,9 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="6" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+    <field row="6" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="title" colspan="1">
       <value>
-        <translation lang="en">%{subtitle}</translation>
+        <translation lang="en">%{title}</translation>
       </value>
       <label>
         <translation lang="en" />

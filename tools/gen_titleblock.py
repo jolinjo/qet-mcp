@@ -15,9 +15,12 @@ its r64 note, dimensions in px at 4 px/mm):
   圖名280(10pt,h60)+補充圖名280(10pt,h60)|頁次120+圖幅120(10pt,h60)|
   備註240(10pt,h60).
 
-Variables — built-ins: %{author} %{date} %{title} %{indexrev} %{folio};
-custom via diagram <properties>: %{techref} %{checked-by} %{approved-by}
-%{doc-type} %{doc-status} %{subtitle} %{doc-id} %{remarks} %{rev-desc}
+標題語意(ISO 7200 主標題 + 補充標題):圖名 = %{projecttitle}(專案標題,
+全專案每頁一致);補充圖名 = %{title}(每頁自己的標題)。兩者皆 QET 內建。
+
+Variables — built-ins: %{projecttitle} %{title} %{author} %{date} %{indexrev}
+%{folio}; custom via diagram <properties>: %{techref} %{checked-by}
+%{approved-by} %{doc-type} %{doc-status} %{doc-id} %{remarks} %{rev-desc}
 %{rev-by} %{rev-appd}.
 """
 import base64
@@ -104,11 +107,11 @@ CELLS = [
     # 法定所有者:無標題列,單一大格(跨兩欄 240px × 4 列高),放公司商標
     field(3, 6, 4, 2, f"LOGO:{LOGO_NAME}"),
     field(4, 8, 3, 2, "%{doc-id}", 11),
-    field(4, 10, 1, 2, "%{title}", 10, "center", "center", "title"),
+    field(4, 10, 1, 2, "%{projecttitle}", 10, "center", "center", "projecttitle"),
     field(4, 12, 1, 1, "A3", 10),
     field(4, 13, 1, 1, "%{folio}", 10, "center", "center", "folio"),
     field(5, 10, 1, 2, "補充圖名 Supplementary title", LBL, "center", bgcolor=LBL_BG),
-    field(6, 10, 1, 2, "%{subtitle}", 10),
+    field(6, 10, 1, 2, "%{title}", 10, "center", "center", "title"),
     field(5, 12, 1, 2, "備註 Remarks", LBL, "center", bgcolor=LBL_BG),
     field(6, 12, 1, 2, "%{remarks}", 10),
 ]

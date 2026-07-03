@@ -420,16 +420,23 @@ def tool_apply_titleblock(title: str = "", doc_id: str = "",
                           date: str = "", techref: str = "",
                           checked_by: str = "", approved_by: str = "",
                           remarks: str = "", a3: bool = True) -> dict:
-    """Embed the Huchen ISO 7200 titleblock into every folio and fill it."""
+    """Embed the Huchen ISO 7200 titleblock into every folio and fill it.
+
+    Per ISO 7200: 圖名 = %projecttitle (project-level, shown on every page)
+    ← `title`; 補充圖名 = %title (per-page) ← `subtitle`."""
     prj = _project()
     prj.embed_titleblock(ET.fromstring(
         TITLEBLOCK_FILE.read_text(encoding="utf-8")))
-    attrs = {"author": author, "title": title, "indexrev": indexrev,
+    if title:
+        prj.title = title                 # 圖名 (main title, project-level)
+    attrs = {"author": author, "indexrev": indexrev,
              "date": date, "folio": "%id / %total"}
+    if subtitle:
+        attrs["title"] = subtitle          # 補充圖名 (per-page title)
     # all custom fields written (blanks too) so QET shows no %{...} literals
     props = {"techref": techref, "checked-by": checked_by,
              "approved-by": approved_by, "doc-type": doc_type,
-             "doc-status": doc_status, "subtitle": subtitle,
+             "doc-status": doc_status,
              "doc-id": doc_id, "remarks": remarks}
     for d in prj.diagrams:
         if a3:

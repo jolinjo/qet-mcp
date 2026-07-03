@@ -59,7 +59,7 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
 | `qet_netlist()` | 端子級連線 JSON,查線用 |
 | `qet_validate()` | 真 QET 引擎載入檢查 |
-| `qet_apply_titleblock(title, doc_id, subtitle, author, …)` | **畫完套公司 ISO 7200 圖框**(logo/底色/A3),一次套所有 folio |
+| `qet_apply_titleblock(title, doc_id, subtitle, author, …)` | **畫完套公司 ISO 7200 圖框**(logo/底色/A3),一次套所有 folio。`title`=圖名(專案標題 %projecttitle,每頁一致);`subtitle`=補充圖名(每頁標題 %title) |
 | `qet_set_revisions(revisions)` | 填修訂歷史(累積);每筆 `{idx,date,desc,zone,by,appd}`,zone=修改座標 |
 | `qet_check_iec_compliance(folio)` | 依公司 IEC 規範稽核(81346 代號/60204-1 線號顏色/連通性),回 MUST/SHOULD findings |
 | `qet_generate_bom(all_folios, folio)` | 物料表:依代號分組(交互參照共代號者算一台) |
