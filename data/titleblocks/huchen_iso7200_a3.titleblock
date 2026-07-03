@@ -468,6 +468,7 @@
         <translation lang="en" />
       </label>
     </field>
+    <logo row="3" col="6" resource="huchen_logo" rowspan="3" colspan="1" />
     <field row="3" col="8" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
       <value>
         <translation lang="en">文件識別號 Identification number *</translation>
@@ -476,9 +477,41 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="10" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
+    <field row="4" col="8" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" colspan="1">
+      <value>
+        <translation lang="en">%{doc-id}</translation>
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
+    <field row="5" col="8" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
       <value>
         <translation lang="en">圖名 Title</translation>
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
+    <field row="6" col="8" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="projecttitle" colspan="1">
+      <value>
+        <translation lang="en">%{projecttitle}</translation>
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
+    <field row="3" col="10" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
+      <value>
+        <translation lang="en">分頁圖名 Supplementary title</translation>
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
+    <field row="4" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="title" rowspan="2" colspan="1">
+      <value>
+        <translation lang="en">%{title}</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -492,31 +525,6 @@
         <translation lang="en" />
       </label>
     </field>
-    <field row="3" col="13" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9">
-      <value>
-        <translation lang="en">頁次 Sheet *</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <logo row="3" col="6" resource="huchen_logo" rowspan="3" colspan="1" />
-    <field row="4" col="8" fontsize="11" align="center" valign="center" displaylabel="false" hadjust="true" name="" rowspan="2" colspan="1">
-      <value>
-        <translation lang="en">%{doc-id}</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="4" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="projecttitle" colspan="1">
-      <value>
-        <translation lang="en">%{projecttitle}</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
     <field row="4" col="12" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="">
       <value>
         <translation lang="en">A3</translation>
@@ -525,25 +533,17 @@
         <translation lang="en" />
       </label>
     </field>
+    <field row="3" col="13" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9">
+      <value>
+        <translation lang="en">頁次 Sheet *</translation>
+      </value>
+      <label>
+        <translation lang="en" />
+      </label>
+    </field>
     <field row="4" col="13" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="folio">
       <value>
         <translation lang="en">%{folio}</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="5" col="10" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
-      <value>
-        <translation lang="en">補充圖名 Supplementary title</translation>
-      </value>
-      <label>
-        <translation lang="en" />
-      </label>
-    </field>
-    <field row="6" col="10" fontsize="10" align="center" valign="center" displaylabel="false" hadjust="true" name="title" colspan="1">
-      <value>
-        <translation lang="en">%{title}</translation>
       </value>
       <label>
         <translation lang="en" />

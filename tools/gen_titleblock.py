@@ -100,18 +100,22 @@ CELLS = [
     field(1, 13, 2, 1, "%{date}", 10, "center", "center", "date"),
 
     # ── 下層,col 6-13 ────────────────────────────────────────
-    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "center", bgcolor=LBL_BG),
-    field(3, 10, 1, 2, "圖名 Title", LBL, "center", bgcolor=LBL_BG),
-    field(3, 12, 1, 1, "圖幅 Size", LBL, "center", bgcolor=LBL_BG),
-    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "center", bgcolor=LBL_BG),
     # 法定所有者:無標題列,單一大格(跨兩欄 240px × 4 列高),放公司商標
     field(3, 6, 4, 2, f"LOGO:{LOGO_NAME}"),
-    field(4, 8, 3, 2, "%{doc-id}", 11),
-    field(4, 10, 1, 2, "%{projecttitle}", 10, "center", "center", "projecttitle"),
+    # col8-9:文件編號 + 圖名 上下堆疊(各一列)
+    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "center", bgcolor=LBL_BG),
+    field(4, 8, 1, 2, "%{doc-id}", 11),
+    field(5, 8, 1, 2, "圖名 Title", LBL, "center", bgcolor=LBL_BG),
+    field(6, 8, 1, 2, "%{projecttitle}", 10, "center", "center", "projecttitle"),
+    # col10-11:分頁圖名 佔滿 4 列高(標籤 + 3 列值)
+    field(3, 10, 1, 2, "分頁圖名 Supplementary title", LBL, "center", bgcolor=LBL_BG),
+    field(4, 10, 3, 2, "%{title}", 10, "center", "center", "title"),
+    # col12 / col13:圖幅、頁次(原位不動)
+    field(3, 12, 1, 1, "圖幅 Size", LBL, "center", bgcolor=LBL_BG),
     field(4, 12, 1, 1, "A3", 10),
+    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "center", bgcolor=LBL_BG),
     field(4, 13, 1, 1, "%{folio}", 10, "center", "center", "folio"),
-    field(5, 10, 1, 2, "補充圖名 Supplementary title", LBL, "center", bgcolor=LBL_BG),
-    field(6, 10, 1, 2, "%{title}", 10, "center", "center", "title"),
+    # col12-13:備註(原位不動)
     field(5, 12, 1, 2, "備註 Remarks", LBL, "center", bgcolor=LBL_BG),
     field(6, 12, 1, 2, "%{remarks}", 10),
 ]
