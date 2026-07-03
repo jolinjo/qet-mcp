@@ -130,7 +130,10 @@ class ToolChain(unittest.TestCase):
 
     def test_titleblock_and_revisions(self):
         server.tool_place_element(CPI, 200, 200, label="-B1")
-        server.tool_apply_titleblock(title="T", doc_id="HC-1", author="J")
+        # explicit bundled template → deterministic (no dependency on the
+        # user's QET company collection, which is the runtime default)
+        server.tool_apply_titleblock(title="T", doc_id="HC-1", author="J",
+                                     template=str(server.TITLEBLOCK_FILE))
         server.tool_set_revisions([
             {"idx": "A", "date": "2026/7/2", "desc": "first", "by": "J"}])
         from qet_xml import QetProject
@@ -141,6 +144,18 @@ class ToolChain(unittest.TestCase):
         self.assertEqual(p.diagram(0).properties.get("rev1-idx"), "A")
         # unused rows blanked, not left as %{rev3-idx}
         self.assertEqual(p.diagram(0).properties.get("rev3-idx"), "")
+        self.assertEqual(p.diagram(0).properties.get("doc-id"), "HC-1")
+
+    def test_auto_docid_numbers_per_dcc(self):
+        server.tool_add_diagram()                       # folio 1
+        server.tool_add_diagram()                       # folio 2
+        server.tool_set_folio_title(0, doc_type="&EFS 電路圖")
+        server.tool_set_folio_title(1, doc_type="&EFS 電路圖")
+        server.tool_set_folio_title(2, doc_type="&EMB 接線表")
+        r = server.tool_auto_docid("HC-9")
+        ids = [a["doc_id"] for a in r["assigned"]]
+        self.assertEqual(ids, ["HC-9-&EFS-01", "HC-9-&EFS-02",
+                               "HC-9-&EMB-01"])
 
 
 if __name__ == "__main__":

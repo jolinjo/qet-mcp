@@ -38,11 +38,13 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 §5.2 交付組合):封面/目錄 → 動力迴路 → 控制電源 → 安全迴路 → 控制迴路 →
 PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 建法:`qet_new_project(title=設備名)` 設**圖名/專案標題** → `qet_add_diagram`
-逐頁(title=**分頁圖名**)→ `qet_apply_titleblock`(不帶 subtitle,免蓋掉逐頁
-標題)→ `qet_set_folio_title(folio, title, doc_id)` 補 folio 0 標題與**逐頁
-文件識別號**(PROJ-DCC-nn)→ `qet_set_revisions`。頁次 %folio 自動 x/總數。
+逐頁(title=**分頁圖名**)→ `qet_set_folio_title(folio, doc_type=DCC)` 標每頁
+**文件類別**(封面留空;&EFS/&EMB/&ELD/&EPB)→ `qet_auto_docid(專案編號)`
+**自動長出全部文件識別號**(改 DCC 後重跑即重整)→ `qet_apply_titleblock`
+(套圖框;不帶 doc_type/doc_id 就**不會蓋掉逐頁的 DCC/識別號**)→
+`qet_set_revisions`。頁次 %folio 自動 x/總數;doc-id = PROJ-DCC-nn(見 §5.2)。
 
-## 2. 工具目錄(27 個)
+## 2. 工具目錄(28 個)
 
 | 工具 | 要點 |
 | --- | --- |
@@ -62,7 +64,8 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 | `qet_set_wire(from_element, from_terminal, to_element, to_terminal, num, color)` | 改既有導線的線號/顏色(IEC 60204-1:AC紅/DC藍/PE綠) |
 | `qet_delete_wire(...)` | 刪一條導線(以兩端子識別) |
 | `qet_add_diagram(title)` | 加一頁 A3 folio(title = 該頁分頁圖名) |
-| `qet_set_folio_title(folio, title, doc_id)` | 設**單一** folio 的分頁圖名(%title)與文件識別號(%doc-id);多頁文件包每頁不同時用(apply_titleblock 是全頁一致) |
+| `qet_set_folio_title(folio, title, doc_type, doc_id)` | 設**單一** folio 的分頁圖名(%title)、文件類別/DCC(%doc-type,如 `&EFS 電路圖`)、文件識別號(%doc-id)。多頁包每頁不同時用;通常設 title+doc_type,doc-id 交給 `qet_auto_docid` |
+| `qet_auto_docid(project_no)` | 從專案編號 + 每頁 DCC(doc-type)**自動產生所有 doc-id**:`PROJ-DCC-nn`,nn 依 folio 序在同 DCC 內遞增;封面(無 DCC)只給 PROJ。**冪等**,改了任何頁 DCC 或重套圖框後重跑即重整編號 |
 | `qet_auto_designate(prefix_map, only_unlabelled)` | 依類別字母(元件 prefix)自動配 IEC 81346 代號;預設只編無代號者,不破壞交互參照 |
 | `qet_auto_xref()` | 交互參照(IEC 61082):同代號的觸點(slave)自動連到線圈(master),QET 顯示觸點位置表。放完該設備所有部件後執行 |
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |

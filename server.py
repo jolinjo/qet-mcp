@@ -298,21 +298,49 @@ def tool_add_diagram(title: str = "") -> dict:
             "folios": len(prj.diagrams)}
 
 
-def tool_set_folio_title(folio: int, title: str = "",
+def tool_set_folio_title(folio: int, title: str = "", doc_type: str = "",
                          doc_id: str = "") -> dict:
-    """Set one folio's per-page 分頁圖名 (%title) and, optionally, its own
-    文件識別號 (%doc-id). Unlike qet_apply_titleblock (which fills every
-    folio identically), this targets a single page — needed for multi-folio
-    document packages where each sheet has its own page title and DCC no."""
+    """Set one folio's 分頁圖名 (%title), its 文件類別/DCC (%doc-type, e.g.
+    '&EFS 電路圖'), and/or 文件識別號 (%doc-id). Targets a single page (unlike
+    qet_apply_titleblock which fills all folios identically). Normally set
+    title + doc_type per page, then call qet_auto_docid to number doc-ids."""
     prj = _project()
     d = prj.diagrams[folio]
     if title:
         d.attrs["title"] = title
+    if doc_type:
+        d.properties["doc-type"] = doc_type
     if doc_id:
         d.properties["doc-id"] = doc_id
     _save(prj)
     return {"folio": folio, "title": d.attrs.get("title", ""),
+            "doc_type": d.properties.get("doc-type", ""),
             "doc_id": d.properties.get("doc-id", "")}
+
+
+def tool_auto_docid(project_no: str) -> dict:
+    """Regenerate every folio's 文件識別號 (%doc-id) from the project number
+    and each folio's 文件類別/DCC (%doc-type): doc-id = <project_no>-<DCC>-nn,
+    where the DCC is the '&XXX' code in doc-type and nn counts per DCC in
+    folio order (01, 02…). Folios with no DCC (cover/index) get just the
+    project number. Idempotent — re-run whenever a folio's doc-type changes
+    or after re-applying the titleblock."""
+    prj = _project()
+    counters: "dict[str, int]" = {}
+    assigned = []
+    for i, d in enumerate(prj.diagrams):
+        m = re.search(r"&\w+", d.properties.get("doc-type", ""))
+        if m:
+            dcc = m.group(0)
+            counters[dcc] = counters.get(dcc, 0) + 1
+            doc_id = f"{project_no}-{dcc}-{counters[dcc]:02d}"
+        else:
+            dcc, doc_id = "", project_no
+        d.properties["doc-id"] = doc_id
+        assigned.append({"folio": i, "dcc": dcc, "doc_id": doc_id})
+    _save(prj)
+    return {"project_no": project_no, "folios": len(assigned),
+            "assigned": assigned}
 
 
 def tool_auto_designate(prefix_map: "dict | None" = None,
@@ -461,7 +489,7 @@ def _resolve_titleblock(template: str = "") -> Path:
 
 
 def tool_apply_titleblock(title: str = "", doc_id: str = "",
-                          subtitle: str = "", doc_type: str = "&EFS 電路圖",
+                          subtitle: str = "", doc_type: str = "",
                           doc_status: str = "正式發行 Released",
                           author: str = "", indexrev: str = "A",
                           date: str = "", techref: str = "",
@@ -486,16 +514,24 @@ def tool_apply_titleblock(title: str = "", doc_id: str = "",
              "date": date, "folio": "%id / %total"}
     if subtitle:
         attrs["title"] = subtitle          # 補充圖名 (per-page title)
-    # all custom fields written (blanks too) so QET shows no %{...} literals
-    props = {"techref": techref, "checked-by": checked_by,
-             "approved-by": approved_by, "doc-type": doc_type,
-             "doc-status": doc_status,
-             "doc-id": doc_id, "remarks": remarks}
+    # shared fields written to every folio (blanks too, so no %{...} shows)
+    shared = {"techref": techref, "checked-by": checked_by,
+              "approved-by": approved_by, "doc-status": doc_status,
+              "remarks": remarks}
+    # doc-type (DCC) and doc-id are PER-FOLIO: only overwrite when a value is
+    # given; otherwise just ensure the key exists, never clobber per-folio
+    # values (so re-applying the titleblock keeps each page's DCC / doc-id)
+    per_folio = {"doc-type": doc_type, "doc-id": doc_id}
     for d in prj.diagrams:
         if a3:
             d.attrs.update(FOLIO_A3_LANDSCAPE)
         d.attrs.update({k: v for k, v in attrs.items() if v})
-        d.properties.update(props)
+        d.properties.update(shared)
+        for k, v in per_folio.items():
+            if v:
+                d.properties[k] = v
+            else:
+                d.properties.setdefault(k, "")
         if not any(k.startswith("rev1-") for k in d.properties):
             d.set_revisions([])   # blank out rev1..6 placeholders
     _save(prj)
@@ -786,10 +822,20 @@ TOOLS = {
         _schema({"title": S}, [])),
     "qet_set_folio_title": (
         tool_set_folio_title, "Set ONE folio's per-page title (分頁圖名 / "
-        "%title) and optionally its own document id (文件識別號 / %doc-id). "
-        "Use for multi-folio packages where each sheet has a distinct title "
-        "and DCC number (qet_apply_titleblock fills all folios identically).",
-        _schema({"folio": I, "title": S, "doc_id": S}, ["folio"])),
+        "%title), its document category/DCC (文件類別 / %doc-type, e.g. "
+        "'&EFS 電路圖'), and/or its document id (文件識別號 / %doc-id). Use "
+        "for multi-folio packages where each sheet differs (qet_apply_"
+        "titleblock fills all folios identically). Set title+doc_type per "
+        "page, then call qet_auto_docid to number the doc-ids.",
+        _schema({"folio": I, "title": S, "doc_type": S, "doc_id": S},
+                ["folio"])),
+    "qet_auto_docid": (
+        tool_auto_docid, "Regenerate every folio's 文件識別號 (%doc-id) from "
+        "the project number + each folio's DCC (%doc-type): "
+        "<project_no>-<DCC>-nn, nn counting per DCC in folio order. Folios "
+        "with no DCC (cover) get just the project number. Idempotent — re-run "
+        "after changing any folio's doc-type or re-applying the titleblock.",
+        _schema({"project_no": S}, ["project_no"])),
     "qet_auto_designate": (
         tool_auto_designate, "Auto-assign IEC 81346 designations "
         "(-<letter><seq>) by category letter (from each element's prefix). "
