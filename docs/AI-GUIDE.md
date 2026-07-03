@@ -234,6 +234,8 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
   - `outline/`(**虎氶-外型圖**):DXF 轉入的實體外型(servo_1/2、plc、
     noise_filter…)。`qet_import_dxf` 預設 category=`outline`。
   改動任一庫後該庫版號 +1 並 rsync 到 QET-Lib push(見 QET-Lib README)。
+  反向散布:QET fork ≥0.100.65 在元件庫面板右鍵「從 GitHub 更新元件庫」,
+  即可從 QET-Lib 一鍵拉取(自動備份舊內容為 library-backup-*.tar.gz)。
 
 ## 10. 原始 .qet XML 與導線模型(改外部專案必讀)
 
