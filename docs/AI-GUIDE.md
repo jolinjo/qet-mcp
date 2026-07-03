@@ -34,6 +34,14 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 (`from qet_xml import QetProject`,API 與 MCP 工具一一對應),
 再用 `qet_open_project` + `qet_render` 檢視 —— 檔案優先架構,兩者可混用。
 
+**設備完整圖面架構**(未指定交付範圍時的預設,依繪圖規範 §11.1 頁序 +
+§5.2 交付組合):封面/目錄 → 動力迴路 → 控制電源 → 安全迴路 → 控制迴路 →
+PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
+建法:`qet_new_project(title=設備名)` 設**圖名/專案標題** → `qet_add_diagram`
+逐頁(title=**分頁圖名**)→ `qet_apply_titleblock`(不帶 subtitle,免蓋掉逐頁
+標題)→ `qet_set_folio_title(folio, title, doc_id)` 補 folio 0 標題與**逐頁
+文件識別號**(PROJ-DCC-nn)→ `qet_set_revisions`。頁次 %folio 自動 x/總數。
+
 ## 2. 工具目錄(27 個)
 
 | 工具 | 要點 |

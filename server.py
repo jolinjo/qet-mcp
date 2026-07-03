@@ -29,6 +29,12 @@ from qet_xml.model import FOLIO_A3_LANDSCAPE  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 TITLEBLOCK_FILE = ROOT / "data" / "titleblocks" / "huchen_iso7200_a3.titleblock"
+# QET company titleblock collection: the user maintains templates there with
+# the QET template editor; it is the source of truth (data/ is only a fallback)
+COMPANY_TB_DIR = Path(os.environ.get(
+    "QET_COMPANY_TB_DIR",
+    Path.home() / "Library/Application Support/QElectroTech"
+    "/QElectroTech/titleblocks-company"))
 QET_BINARY = Path(os.environ.get(
     "QET_BINARY", ROOT.parent / "QET-qeletrotech/build/qelectrotech.app/Contents/MacOS/qelectrotech"))
 ELEMENTS_DIR = Path(os.environ.get(
@@ -292,6 +298,23 @@ def tool_add_diagram(title: str = "") -> dict:
             "folios": len(prj.diagrams)}
 
 
+def tool_set_folio_title(folio: int, title: str = "",
+                         doc_id: str = "") -> dict:
+    """Set one folio's per-page 分頁圖名 (%title) and, optionally, its own
+    文件識別號 (%doc-id). Unlike qet_apply_titleblock (which fills every
+    folio identically), this targets a single page — needed for multi-folio
+    document packages where each sheet has its own page title and DCC no."""
+    prj = _project()
+    d = prj.diagrams[folio]
+    if title:
+        d.attrs["title"] = title
+    if doc_id:
+        d.properties["doc-id"] = doc_id
+    _save(prj)
+    return {"folio": folio, "title": d.attrs.get("title", ""),
+            "doc_id": d.properties.get("doc-id", "")}
+
+
 def tool_auto_designate(prefix_map: "dict | None" = None,
                         only_unlabelled: bool = True,
                         folio: int = 0) -> dict:
@@ -413,20 +436,50 @@ def tool_validate() -> dict:
 # titleblock
 # --------------------------------------------------------------------------- #
 
+def _resolve_titleblock(template: str = "") -> Path:
+    """Template source, in priority order: explicit file path > name in the
+    QET company collection > sole/default company template > bundled data/
+    copy.  The company collection is what the user edits inside QET, so it
+    always wins over the copy shipped with qet-mcp."""
+    if template:
+        p = Path(template).expanduser()
+        if p.is_file():
+            return p
+        p = COMPANY_TB_DIR / f"{template}.titleblock"
+        if p.is_file():
+            return p
+        raise ValueError(
+            f"titleblock '{template}' not found (checked file path and "
+            f"{COMPANY_TB_DIR})")
+    candidates = sorted(COMPANY_TB_DIR.glob("*.titleblock"))
+    if len(candidates) == 1:
+        return candidates[0]
+    for c in candidates:  # several templates: prefer the company A3 one
+        if "A3" in c.stem:
+            return c
+    return candidates[0] if candidates else TITLEBLOCK_FILE
+
+
 def tool_apply_titleblock(title: str = "", doc_id: str = "",
                           subtitle: str = "", doc_type: str = "&EFS 電路圖",
                           doc_status: str = "正式發行 Released",
                           author: str = "", indexrev: str = "A",
                           date: str = "", techref: str = "",
                           checked_by: str = "", approved_by: str = "",
-                          remarks: str = "", a3: bool = True) -> dict:
-    """Embed the Huchen ISO 7200 titleblock into every folio and fill it.
+                          remarks: str = "", a3: bool = True,
+                          template: str = "") -> dict:
+    """Embed a titleblock template into every folio and fill it.
+
+    `template` = template name in the QET company collection (or a file
+    path); empty = the default company template.  qet-mcp does not keep
+    its own authoritative copy: whatever the user edited in QET is used.
 
     Per ISO 7200: 圖名 = %projecttitle (project-level, shown on every page)
     ← `title`; 補充圖名 = %title (per-page) ← `subtitle`."""
     prj = _project()
+    tb_file = _resolve_titleblock(template)
     prj.embed_titleblock(ET.fromstring(
-        TITLEBLOCK_FILE.read_text(encoding="utf-8")))
+        tb_file.read_text(encoding="utf-8")))
     if title:
         prj.title = title                 # 圖名 (main title, project-level)
     attrs = {"author": author, "indexrev": indexrev,
@@ -446,7 +499,8 @@ def tool_apply_titleblock(title: str = "", doc_id: str = "",
         if not any(k.startswith("rev1-") for k in d.properties):
             d.set_revisions([])   # blank out rev1..6 placeholders
     _save(prj)
-    return {"applied_to_folios": len(prj.diagrams), "title": title}
+    return {"applied_to_folios": len(prj.diagrams), "title": title,
+            "template": str(tb_file)}
 
 
 def tool_set_revisions(revisions: list, folio: int = 0) -> dict:
@@ -730,6 +784,12 @@ TOOLS = {
         tool_add_diagram, "Add a new (A3 landscape) folio to the current "
         "project; returns its index.",
         _schema({"title": S}, [])),
+    "qet_set_folio_title": (
+        tool_set_folio_title, "Set ONE folio's per-page title (分頁圖名 / "
+        "%title) and optionally its own document id (文件識別號 / %doc-id). "
+        "Use for multi-folio packages where each sheet has a distinct title "
+        "and DCC number (qet_apply_titleblock fills all folios identically).",
+        _schema({"folio": I, "title": S, "doc_id": S}, ["folio"])),
     "qet_auto_designate": (
         tool_auto_designate, "Auto-assign IEC 81346 designations "
         "(-<letter><seq>) by category letter (from each element's prefix). "
@@ -776,13 +836,15 @@ TOOLS = {
         "engine; returns per-folio element/conductor counts.",
         _schema({}, [])),
     "qet_apply_titleblock": (
-        tool_apply_titleblock, "Embed the company ISO 7200 titleblock into "
-        "every folio (A3 landscape) and fill its fields. Use once a project "
-        "is drawn to give it a proper drawing frame.",
+        tool_apply_titleblock, "Embed a titleblock template into every "
+        "folio (A3 landscape) and fill its fields. Default template = the "
+        "user's QET company collection; `template` picks another by name "
+        "or file path. Use once a project is drawn.",
         _schema({"title": S, "doc_id": S, "subtitle": S, "doc_type": S,
                  "doc_status": S, "author": S, "indexrev": S, "date": S,
                  "techref": S, "checked_by": S, "approved_by": S,
-                 "remarks": S, "a3": {"type": "boolean"}}, [])),
+                 "remarks": S, "a3": {"type": "boolean"},
+                 "template": S}, [])),
     "qet_set_revisions": (
         tool_set_revisions, "Fill the revision-history table (accumulates "
         "every version, not just the current one). Each revision: "
