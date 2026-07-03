@@ -27,10 +27,16 @@ from pathlib import Path
 NAME = "huchen_iso7200_a3"
 ROOT_DIR = Path(__file__).resolve().parents[1]
 OUT = ROOT_DIR / "data" / "titleblocks" / f"{NAME}.titleblock"
+# 同步安裝到 QET 的「公司圖框」集合,讓 GUI 手動繪圖也能選到同一設計;
+# 內部名 = 檔名 = QET 清單顯示名。以後改設計重跑本腳本即可更新這裡。
+COMPANY_TB_DIR = (Path.home() / "Library/Application Support/QElectroTech"
+                  "/QElectroTech/titleblocks-company")
+COMPANY_NAME = "虎氶科技-A3-橫式"
 # 法定所有者格放一張含 logo + 公司名的圖片(QET 一格只能圖或字,無法
 # 圖字並存;QtSvg 又不支援 data-URI image / CJK text,故用單張點陣圖)。
-# huchen_logo.png 是公司完整商標(HC 圖標 + 虎承科技),已白邊補至格子
-# 比例(240:64)。要顯示「有限公司」等全名,請提供一張含全名的橫式圖。
+# huchen_logo.png 由 docs/logo.png(公司完整商標)置中補透明邊至格子比例
+# (240:64=3.75:1)而成:QET 會把圖拉滿格子,先補到相同比例才不會變形,
+# 且四周留白 → 視覺置中。要換 logo 就更新 docs/logo.png 後重跑本腳本。
 LOGO_FILE = ROOT_DIR / "data" / "logos" / "huchen_logo.png"
 LOGO_NAME = "huchen_logo"
 
@@ -108,8 +114,8 @@ CELLS = [
 ]
 
 
-def main() -> None:
-    root = ET.Element("titleblocktemplate", {"name": NAME})
+def build_tree(template_name: str) -> ET.Element:
+    root = ET.Element("titleblocktemplate", {"name": template_name})
     ET.SubElement(root, "information").text = (
         "Huchen ISO 7200 A3 full-width title block, generated from "
         "docs/ISO7200_A3_圖框標題欄範本_4.xlsx by tools/gen_titleblock.py")
@@ -145,11 +151,23 @@ def main() -> None:
         ET.SubElement(value, "translation", {"lang": "en"}).text = text
         label = ET.SubElement(f, "label")
         ET.SubElement(label, "translation", {"lang": "en"}).text = ""
+    return root
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+
+def write_tree(root: ET.Element, path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     ET.indent(tree := ET.ElementTree(root))
-    tree.write(OUT, encoding="utf-8", xml_declaration=False)
-    print(f"wrote {OUT}")
+    tree.write(path, encoding="utf-8", xml_declaration=False)
+    print(f"wrote {path}")
+
+
+def main() -> None:
+    # tracked repo copy (used by the MCP qet_apply_titleblock tool)
+    write_tree(build_tree(NAME), OUT)
+    # company-collection copy so it shows under QET's「公司圖框」
+    if COMPANY_TB_DIR.exists():
+        write_tree(build_tree(COMPANY_NAME),
+                   COMPANY_TB_DIR / f"{COMPANY_NAME}.titleblock")
 
 
 if __name__ == "__main__":
