@@ -603,10 +603,12 @@ def tool_generate_bom(all_folios: bool = True, folio: int = 0) -> dict:
 def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
                     name_en: str = "", filename: str = "",
                     pin_layer: str = "pin", scale: float = 4.0,
-                    out_path: str = "") -> dict:
+                    split: str = "block", out_path: str = "") -> dict:
     """Convert a DXF drawing into a QET .elmt and save it into the company
     element collection. Terminals come from the `pin_layer`; geometry from
-    the rest."""
+    the rest. `split` = how many elements: "block" (one per DXF block, else
+    single), "cluster" (split a flat drawing into spatially-separate parts →
+    one each), or "none" (force single)."""
     try:
         sys.path.insert(0, str(ROOT / "tools"))
         from dxf_to_elmt import convert
@@ -621,13 +623,16 @@ def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
         out = COMPANY_DIR / category / f"{stem}.elmt"
     out.parent.mkdir(parents=True, exist_ok=True)
     res = convert(dxf_path, str(out), name=name, scale=scale,
-                  pin_layer=pin_layer, name_en=name_en or None)
+                  pin_layer=pin_layer, name_en=name_en or None, split=split)
     res["dir"] = str(out.parent)
     # a DXF with block definitions yields one element per block (named by
     # the block); otherwise the whole drawing is one element at `out`
     if res["mode"] == "blocks":
         res["note"] = (f"{res['count']} block(s) → one element each in "
                        f"{out.parent}")
+    elif res["mode"] == "clusters":
+        res["note"] = (f"{res['count']} spatial cluster(s) (gap {res['gap']}) "
+                       f"→ <name>_n.elmt in {out.parent}")
     if not any(e["pin_layer_found"] for e in res["elements"]):
         res["note"] = (f"no '{pin_layer}' layer found — "
                        f"element(s) built with 0 terminals; add a pin layer "
@@ -801,12 +806,16 @@ TOOLS = {
         "Terminals are read from a dedicated DXF layer (default 'pin'): each "
         "POINT/CIRCLE/short line becomes a terminal, named by the nearest "
         "TEXT (its pin number). Without that layer the element has no "
-        "terminals. If the DXF contains block definitions, each block is "
-        "emitted as its own element (named by the block); otherwise the whole "
-        "drawing is one element. Adds a dynamic label so the designation "
+        "terminals. split='block' (default): one element per DXF block, else "
+        "single. split='cluster': split a flat drawing (no blocks) into "
+        "spatially-separate parts → one element each (<name>_1..). "
+        "split='none': force single. Adds a dynamic label so the designation "
         "shows on a folio. Requires the 'ezdxf' package.",
         _schema({"dxf_path": S, "name": S, "category": S, "name_en": S,
-                 "filename": S, "pin_layer": S, "scale": N, "out_path": S},
+                 "filename": S, "pin_layer": S, "scale": N,
+                 "split": {"type": "string",
+                           "enum": ["block", "cluster", "none"]},
+                 "out_path": S},
                 ["dxf_path", "name"])),
 }
 

@@ -187,10 +187,14 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
   QET 元件編輯器補,或補圖層重跑)。
 - **名稱與編號**:`name`(+`name_en`)寫進 `<names>`(元件庫顯示);另自動加一個
   `dynamic_text`(text_from=ElementInfo/label),放上 folio 時顯示代號(-Z1…)。
-- **一張 DXF 多顆元件**:用 CAD 的 **BLOCK(圖塊)**。偵測到圖塊定義時自動
-  **一個 block = 一顆 .elmt**(檔名=圖塊名、hotspot=圖塊基準點),端子/腳位號
-  跟著各自圖塊的 `pin` 圖層走;沒有圖塊則整張 modelspace = 一顆(維持相容)。
-  回傳 `mode`(`blocks`/`single`)、`count`、`elements[]`。
+- **一張 DXF 多顆元件**,用 `split` 參數:
+  - `split="block"`(預設):CAD **BLOCK(圖塊)**優先 —— 一個 block = 一顆 .elmt
+    (檔名=圖塊名、hotspot=基準點);沒有圖塊則整張=一顆。
+  - `split="cluster"`:**沒有圖塊也能拆** —— 把攤平的圖形依「空白間隙」切成
+    數個空間分離的區塊,一區一顆(命名 `<name>_1..`,由左至右)。適合 CAD
+    匯出成一堆線、多個零件並排的圖。間隙門檻預設為圖面較長邊的 3%。
+  - `split="none"`:強制整張=一顆。
+  - 回傳 `mode`(`blocks`/`clusters`/`single`)、`count`、`elements[]`。
 - **輸出位置**:預設 `elements-company/<category>/<filename>.elmt`
   (category 預設 `control`,filename 預設 DXF 檔名;block 模式檔名取自圖塊名)。
   存完提醒使用者在 QET **重新整理元件面板**才看得到。

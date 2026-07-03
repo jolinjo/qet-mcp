@@ -119,6 +119,60 @@ def _safe_filename(s):
     return re.sub(r"\s+", "_", s) or "element"
 
 
+def _bbox(e):
+    """Axis-aligned bounding box (minx, miny, maxx, maxy) of an entity."""
+    try:
+        if e.dxftype() == "LINE":
+            s, en = e.dxf.start, e.dxf.end
+            return (min(s.x, en.x), min(s.y, en.y),
+                    max(s.x, en.x), max(s.y, en.y))
+        if e.dxftype() == "CIRCLE":
+            c, r = e.dxf.center, e.dxf.radius
+            return (c.x - r, c.y - r, c.x + r, c.y + r)
+        pts = [(v.x, v.y) for v in ezpath.make_path(e).flattening(1.0)]
+        if not pts:
+            return None
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        return (min(xs), min(ys), max(xs), max(ys))
+    except Exception:
+        return None
+
+
+def cluster_entities(entities, gap, min_ents=5):
+    """Group entities into spatially-separate clusters: two entities join
+    the same cluster if their bounding boxes are within `gap` of each other
+    (union-find). Used to split a flat DXF (no blocks) of several parts laid
+    out with whitespace between them. Clusters are returned left-to-right;
+    groups smaller than `min_ents` (stray notes/dims) are dropped."""
+    boxes = [(b, e) for b, e in ((_bbox(e), e) for e in entities) if b]
+    boxes.sort(key=lambda be: be[0][0])          # by minx for the sweep
+    n = len(boxes)
+    parent = list(range(n))
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for i in range(n):
+        ax0, ay0, ax1, ay1 = boxes[i][0]
+        for j in range(i + 1, n):
+            bx0, by0, bx1, by1 = boxes[j][0]
+            if bx0 - gap > ax1:      # sorted by minx → no later box can touch
+                break
+            if ay0 - gap <= by1 and by0 - gap <= ay1:
+                parent[find(i)] = find(j)
+
+    from collections import defaultdict
+    groups = defaultdict(list)
+    for i in range(n):
+        groups[find(i)].append(boxes[i])
+    out = [[e for _, e in g] for g in groups.values() if len(g) >= min_ents]
+    out.sort(key=lambda g: min(_bbox(e)[0] for e in g if _bbox(e)))
+    return out
+
+
 def _build_element(entities, out_path, name, scale, pin_layer, name_en,
                    label, origin=None):
     """Build one .elmt from an iterable of DXF entities. `origin` (DXF
@@ -220,27 +274,59 @@ def _build_element(entities, out_path, name, scale, pin_layer, name_en,
 
 
 def convert(dxf_path, out_path, name="imported", scale=4.0,
-            pin_layer="pin", name_en=None, label=True, split_blocks=True):
-    """DXF → .elmt. If the drawing contains block definitions and
-    `split_blocks` is on, emit one element per block (named by the block,
-    hotspot at its base point) into out_path's directory; otherwise the
-    whole modelspace becomes a single element written to out_path."""
+            pin_layer="pin", name_en=None, label=True, split="block",
+            cluster_gap=None):
+    """DXF → .elmt. `split` chooses how many elements to emit:
+      "block"   — one per block definition (named by block, hotspot at its
+                  base point); if the DXF has no blocks, the whole drawing
+                  is a single element. [default]
+      "cluster" — no blocks needed: split the flat modelspace into
+                  spatially-separate parts (whitespace gaps) → one element
+                  each, named <name>_1.. left-to-right. `cluster_gap` (DXF
+                  units) is the min gap that separates parts; None = 3% of
+                  the drawing's larger side.
+      "none"    — force the whole drawing into a single element.
+    Multi-element modes write <stem>_n.elmt / <block>.elmt into out_path's
+    directory."""
     doc = ezdxf.readfile(dxf_path)
-    blocks = _drawable_blocks(doc) if split_blocks else []
-    if blocks:
-        out_dir = Path(out_path).parent
+    out_dir = Path(out_path).parent
+    stem = Path(out_path).stem
+
+    if split == "block":
+        blocks = _drawable_blocks(doc)
+        if blocks:
+            elements = []
+            for b in blocks:
+                bp = b.block.dxf.base_point
+                dest = out_dir / (_safe_filename(b.name) + ".elmt")
+                try:
+                    elements.append(_build_element(
+                        list(b), dest, b.name, scale, pin_layer,
+                        name_en=None, label=label, origin=(bp.x, bp.y)))
+                except ValueError:
+                    pass    # empty/degenerate block — skip
+            return {"mode": "blocks", "count": len(elements),
+                    "elements": elements}
+
+    if split == "cluster":
+        ents = list(doc.modelspace())
+        boxes = [_bbox(e) for e in ents]
+        boxes = [b for b in boxes if b]
+        span = max(max(b[2] for b in boxes) - min(b[0] for b in boxes),
+                   max(b[3] for b in boxes) - min(b[1] for b in boxes))
+        gap = cluster_gap if cluster_gap else round(0.03 * span, 2)
+        groups = cluster_entities(ents, gap)
         elements = []
-        for b in blocks:
-            bp = b.block.dxf.base_point
-            dest = out_dir / (_safe_filename(b.name) + ".elmt")
+        for i, g in enumerate(groups, 1):
+            dest = out_dir / f"{stem}_{i}.elmt"
             try:
                 elements.append(_build_element(
-                    list(b), dest, b.name, scale, pin_layer,
-                    name_en=None, label=label, origin=(bp.x, bp.y)))
+                    g, dest, f"{name}_{i}", scale, pin_layer,
+                    name_en=None, label=label))
             except ValueError:
-                pass    # empty/degenerate block — skip
-        return {"mode": "blocks", "count": len(elements),
-                "elements": elements}
+                pass
+        return {"mode": "clusters", "count": len(elements),
+                "gap": gap, "elements": elements}
 
     st = _build_element(list(doc.modelspace()), out_path, name, scale,
                         pin_layer, name_en, label)
@@ -252,4 +338,5 @@ if __name__ == "__main__":
     print(convert(a[1], a[2],
                   a[3] if len(a) > 3 else "imported",
                   float(a[4]) if len(a) > 4 else 4.0,
-                  pin_layer=a[5] if len(a) > 5 else "pin"))
+                  pin_layer=a[5] if len(a) > 5 else "pin",
+                  split=a[6] if len(a) > 6 else "block"))
