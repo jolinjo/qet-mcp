@@ -690,7 +690,7 @@ def tool_generate_bom(all_folios: bool = True, folio: int = 0) -> dict:
     return {"bom": bom, "devices": len(bom), "unlabelled": unlabelled}
 
 
-def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
+def tool_import_dxf(dxf_path: str, name: str, category: str = "outline",
                     name_en: str = "", filename: str = "",
                     pin_layer: str = "pin", scale: float = 4.0,
                     split: str = "block", line_weight: str = "thin",

@@ -131,7 +131,14 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 
 - **範本正本 = QET 公司圖框集**
   `~/Library/Application Support/QElectroTech/QElectroTech/titleblocks-company/`
-  (使用者在 QET 範本編輯器維護)。`qet_apply_titleblock` 預設從這裡取範本
+  (使用者在 QET 範本編輯器維護)。
+- **版控與版號(2026-07)**:公司元件庫(`elements-company/control/`)與公司
+  圖框集鏡像到 `ClaudeCodeDev/QET-Lib/` repo(push 到 jolinjo/QET-Lib)。
+  兩處**版號各自獨立**,顯示在:元件庫 `qet_directory` 的名稱(「虎氶科技-
+  元件庫 v0.0.1」)、圖框**檔名**(「虎氶科技-A3-橫式 v0.0.1.titleblock」,
+  name 屬性同步)。**改動任一處後**:顯示版號 +1 → rsync 到 QET-Lib →
+  中文 commit 記「動了什麼→到什麼版本」→ push。`_resolve_titleblock`
+  預設取含 "A3" 的檔名,改名不影響;指名時要含版號。`qet_apply_titleblock` 預設從這裡取範本
   (`template` 參數可指定名稱/路徑),qet-mcp **不自帶權威版本**;
   `data/titleblocks/huchen_iso7200_a3.titleblock` 只是初始版/無公司集時的
   fallback(由 `tools/gen_titleblock.py` 從 docs/ISO7200_A3_….xlsx 生成)。
@@ -217,3 +224,13 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 - **輸出位置**:預設 `elements-company/<category>/<filename>.elmt`
   (category 預設 `control`,filename 預設 DXF 檔名;block 模式檔名取自圖塊名)。
   存完提醒使用者在 QET **重新整理元件面板**才看得到。
+- **公司元件庫結構(2026-07)**:分兩個獨立庫,版號各自獨立(顯示在
+  qet_directory 名稱,如「虎氶-示意圖v0.1」):
+  - `schematic/`(**虎氶-示意圖**):IEC 電路符號,下分 10 個一層大分類
+    `01_protection`(保護開關)/`02_relay_contactor`/`03_buttons`/
+    `04_signaling`/`05_sensors`/`06_power`/`07_motor_actuator`/
+    `08_terminal_earth`/`09_controller`/`10_misc`(每分類有 qet_directory
+    中文名)。常用 IEC 標準元件已複製在庫內,優先取用。
+  - `outline/`(**虎氶-外型圖**):DXF 轉入的實體外型(servo_1/2、plc、
+    noise_filter…)。`qet_import_dxf` 預設 category=`outline`。
+  改動任一庫後該庫版號 +1 並 rsync 到 QET-Lib push(見 QET-Lib README)。
