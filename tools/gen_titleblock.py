@@ -89,7 +89,7 @@ CELLS = [
     field(0, 10, 1, 1, "審核 Checked by", LBL, "center", bgcolor=LBL_BG),
     field(0, 11, 1, 1, "核准 Approved by", LBL, "center", bgcolor=LBL_BG),
     field(0, 12, 1, 1, "文件狀態 Document status", LBL, "center", bgcolor=LBL_BG),
-    field(0, 13, 1, 1, "發行日期 Date of issue *", LBL, "center", bgcolor=LBL_BG),
+    field(0, 13, 1, 1, "發行日期 Date of issue", LBL, "center", bgcolor=LBL_BG),
     field(1, 6, 2, 1, "%{indexrev}", 10),
     field(1, 7, 2, 1, "%{doc-type}", 10),
     field(1, 8, 2, 1, "%{techref}", 10),
@@ -103,7 +103,7 @@ CELLS = [
     # 法定所有者:無標題列,單一大格(跨兩欄 240px × 4 列高),放公司商標
     field(3, 6, 4, 2, f"LOGO:{LOGO_NAME}"),
     # col8-9:文件編號 + 圖名 上下堆疊(各一列)
-    field(3, 8, 1, 2, "文件識別號 Identification number *", LBL, "center", bgcolor=LBL_BG),
+    field(3, 8, 1, 2, "文件識別號 Identification number", LBL, "center", bgcolor=LBL_BG),
     field(4, 8, 1, 2, "%{doc-id}", 11),
     field(5, 8, 1, 2, "圖名 Title", LBL, "center", bgcolor=LBL_BG),
     field(6, 8, 1, 2, "%{projecttitle}", 10, "center", "center", "projecttitle"),
@@ -113,7 +113,7 @@ CELLS = [
     # col12 / col13:圖幅、頁次(原位不動)
     field(3, 12, 1, 1, "圖幅 Size", LBL, "center", bgcolor=LBL_BG),
     field(4, 12, 1, 1, "A3", 10),
-    field(3, 13, 1, 1, "頁次 Sheet *", LBL, "center", bgcolor=LBL_BG),
+    field(3, 13, 1, 1, "頁次 Sheet", LBL, "center", bgcolor=LBL_BG),
     field(4, 13, 1, 1, "%{folio}", 10, "center", "center", "folio"),
     # col12-13:備註(原位不動)
     field(5, 12, 1, 2, "備註 Remarks", LBL, "center", bgcolor=LBL_BG),

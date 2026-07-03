@@ -398,7 +398,7 @@
     </field>
     <field row="0" col="13" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9">
       <value>
-        <translation lang="en">發行日期 Date of issue *</translation>
+        <translation lang="en">發行日期 Date of issue</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -471,7 +471,7 @@
     <logo row="3" col="6" resource="huchen_logo" rowspan="3" colspan="1" />
     <field row="3" col="8" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9" colspan="1">
       <value>
-        <translation lang="en">文件識別號 Identification number *</translation>
+        <translation lang="en">文件識別號 Identification number</translation>
       </value>
       <label>
         <translation lang="en" />
@@ -535,7 +535,7 @@
     </field>
     <field row="3" col="13" fontsize="8" align="center" valign="center" displaylabel="false" hadjust="true" name="" bgcolor="#d9d9d9">
       <value>
-        <translation lang="en">頁次 Sheet *</translation>
+        <translation lang="en">頁次 Sheet</translation>
       </value>
       <label>
         <translation lang="en" />

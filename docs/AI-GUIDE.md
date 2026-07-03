@@ -34,7 +34,7 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 (`from qet_xml import QetProject`,API 與 MCP 工具一一對應),
 再用 `qet_open_project` + `qet_render` 檢視 —— 檔案優先架構,兩者可混用。
 
-## 2. 工具目錄(26 個)
+## 2. 工具目錄(27 個)
 
 | 工具 | 要點 |
 | --- | --- |
@@ -53,7 +53,8 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_delete_element(element)` | 刪元件 + 其相連導線 |
 | `qet_set_wire(from_element, from_terminal, to_element, to_terminal, num, color)` | 改既有導線的線號/顏色(IEC 60204-1:AC紅/DC藍/PE綠) |
 | `qet_delete_wire(...)` | 刪一條導線(以兩端子識別) |
-| `qet_add_diagram(title)` | 加一頁 A3 folio |
+| `qet_add_diagram(title)` | 加一頁 A3 folio(title = 該頁分頁圖名) |
+| `qet_set_folio_title(folio, title, doc_id)` | 設**單一** folio 的分頁圖名(%title)與文件識別號(%doc-id);多頁文件包每頁不同時用(apply_titleblock 是全頁一致) |
 | `qet_auto_designate(prefix_map, only_unlabelled)` | 依類別字母(元件 prefix)自動配 IEC 81346 代號;預設只編無代號者,不破壞交互參照 |
 | `qet_auto_xref()` | 交互參照(IEC 61082):同代號的觸點(slave)自動連到線圈(master),QET 顯示觸點位置表。放完該設備所有部件後執行 |
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
@@ -120,6 +121,13 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 - 公司標準圖框:`data/titleblocks/huchen_iso7200_a3.titleblock`
   (ISO 7200 全寬底欄,由 `tools/gen_titleblock.py` 從
   docs/ISO7200_A3_….xlsx 生成;改版改產生器再重生,勿手改輸出檔)。
+- **陷阱:圖框文字改動會被蓋回**——`embed_titleblock()` /
+  `qet_apply_titleblock` 是無條件覆蓋內嵌範本;使用者若在 QET
+  範本編輯器改了內嵌圖框(如刪掉標籤的 `*`),下次套圖框就會還原。
+  要永久改文字必須改 `tools/gen_titleblock.py` 再重生
+  (它同時更新 data/ 正本與 QET 公司圖框集
+  `~/Library/Application Support/QElectroTech/QElectroTech/titleblocks-company/`)。
+  2026-07:已移除三個 ISO 7200 必填星號(發行日期/文件識別號/頁次)。
 - 套用方式(qet_xml):
 
   ```python
