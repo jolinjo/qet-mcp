@@ -257,6 +257,16 @@ class Diagram:
         self.conductors.append(c)
         return c
 
+    def find_conductor(self, ta: TerminalRef, tb: TerminalRef):
+        """Find the conductor between two terminal refs (either direction)."""
+        want = {(ta.element_uuid, ta.terminal.uuid),
+                (tb.element_uuid, tb.terminal.uuid)}
+        for c in self.conductors:
+            if {(c.element1, c.terminal1),
+                    (c.element2, c.terminal2)} == want:
+                return c
+        return None
+
     def remove_element(self, inst: ElementInstance) -> int:
         """Remove an element and any conductor attached to it.
         Returns the number of conductors also removed."""

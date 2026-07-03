@@ -98,6 +98,19 @@ class ToolChain(unittest.TestCase):
         self.assertEqual(r["count"], 1)
         self.assertEqual(r["assigned"][0]["label"], "-B2")  # continues past B1
 
+    def test_set_and_delete_wire(self):
+        server.tool_place_element(CPI, 200, 200, label="-B1")
+        server.tool_place_element(CPI, 200, 320, label="-B2")
+        server.tool_draw_conductor("-B1", "2", "-B2", "1", num="1")
+        server.tool_set_wire("-B1", "2", "-B2", "1", num="101",
+                             color="#FF0000")
+        c = server.tool_list_content()["conductors"][0]
+        self.assertEqual(c["num"], "101")
+        with self.assertRaises(KeyError):     # nonexistent conductor
+            server.tool_set_wire("-B1", "1", "-B2", "2")
+        server.tool_delete_wire("-B1", "2", "-B2", "1")
+        self.assertEqual(len(server.tool_list_content()["conductors"]), 0)
+
     def test_auto_xref_links_contacts_to_coil(self):
         AUX = (E + "310_relays_contactors_contacts/"
                "02_contacts_cross_referencing/01_auxiliary_contacts/"

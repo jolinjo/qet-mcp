@@ -322,6 +322,41 @@ def tool_auto_designate(prefix_map: "dict | None" = None,
     return {"assigned": assigned, "count": len(assigned)}
 
 
+def _resolve_wire(d, from_element, from_terminal, to_element, to_terminal):
+    a = _find_instance(d, from_element).terminal(from_terminal)
+    b = _find_instance(d, to_element).terminal(to_terminal)
+    c = d.find_conductor(a, b)
+    if c is None:
+        raise KeyError(f"no conductor between {from_element}:{from_terminal} "
+                       f"and {to_element}:{to_terminal}")
+    return c
+
+
+def tool_set_wire(from_element: str, from_terminal: str, to_element: str,
+                  to_terminal: str, num: "str | None" = None,
+                  color: str = "", folio: int = 0) -> dict:
+    """Change an existing conductor's wire number and/or colour."""
+    prj = _project()
+    c = _resolve_wire(prj.diagram(folio), from_element, from_terminal,
+                      to_element, to_terminal)
+    if num is not None:
+        c.props["num"] = str(num)
+    if color:
+        c.props["color"] = color
+    _save(prj)
+    return {"num": c.props.get("num", ""), "color": c.props.get("color", "")}
+
+
+def tool_delete_wire(from_element: str, from_terminal: str, to_element: str,
+                     to_terminal: str, folio: int = 0) -> dict:
+    prj = _project()
+    d = prj.diagram(folio)
+    c = _resolve_wire(d, from_element, from_terminal, to_element, to_terminal)
+    d.conductors.remove(c)
+    _save(prj)
+    return {"deleted": True, "remaining": len(d.conductors)}
+
+
 def tool_auto_xref(folio: int = 0) -> dict:
     """Cross-reference parts sharing a designation (link each contact to
     its coil of the same label). QET then shows the coil's contact table
@@ -646,6 +681,22 @@ TOOLS = {
         "breaking existing cross-references.",
         _schema({"prefix_map": {"type": "object"},
                  "only_unlabelled": {"type": "boolean"}, "folio": I}, [])),
+    "qet_set_wire": (
+        tool_set_wire, "Change an existing conductor's wire number and/or "
+        "colour (IEC 60204-1: control circuits should be coloured by type — "
+        "AC #FF0000, DC #00008B, PE #008000). Identify the conductor by its "
+        "two terminals (same refs as qet_draw_conductor).",
+        _schema({"from_element": S, "from_terminal": S, "to_element": S,
+                 "to_terminal": S, "num": S, "color": S, "folio": I},
+                ["from_element", "from_terminal", "to_element",
+                 "to_terminal"])),
+    "qet_delete_wire": (
+        tool_delete_wire, "Delete a conductor identified by its two "
+        "terminals.",
+        _schema({"from_element": S, "from_terminal": S, "to_element": S,
+                 "to_terminal": S, "folio": I},
+                ["from_element", "from_terminal", "to_element",
+                 "to_terminal"])),
     "qet_auto_xref": (
         tool_auto_xref, "Cross-reference (IEC 61082) parts sharing a "
         "designation: link each slave contact to its master coil of the "
