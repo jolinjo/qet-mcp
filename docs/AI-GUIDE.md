@@ -34,7 +34,7 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 (`from qet_xml import QetProject`,API 與 MCP 工具一一對應),
 再用 `qet_open_project` + `qet_render` 檢視 —— 檔案優先架構,兩者可混用。
 
-## 2. 工具目錄(25 個)
+## 2. 工具目錄(26 個)
 
 | 工具 | 要點 |
 | --- | --- |
@@ -62,6 +62,8 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_apply_titleblock(title, doc_id, subtitle, author, …)` | **畫完套公司 ISO 7200 圖框**(logo/底色/A3),一次套所有 folio |
 | `qet_set_revisions(revisions)` | 填修訂歷史(累積);每筆 `{idx,date,desc,zone,by,appd}`,zone=修改座標 |
 | `qet_check_iec_compliance(folio)` | 依公司 IEC 規範稽核(81346 代號/60204-1 線號顏色/連通性),回 MUST/SHOULD findings |
+| `qet_generate_bom(all_folios, folio)` | 物料表:依代號分組(交互參照共代號者算一台) |
+| `qet_import_dxf(dxf_path, name, category, name_en, filename, pin_layer, scale)` | DXF→.elmt 存進公司元件庫;幾何完整重現;端子讀自 `pin` 圖層;多圖塊(BLOCK)自動一顆一顆拆(見 §9) |
 
 **收尾流程**:畫完電路 → `qet_apply_titleblock(...)` 套圖框 →
 `qet_check_iec_compliance()` 稽核(修掉 MUST)→ `qet_render` 目視 →
@@ -169,3 +171,26 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 - 元件索引快取在 `.cache/elements_index.json`,元件庫變動自動重建。
 - commit 一律中文說明;QET fork 的 commit 另需 CMakeLists patch 版本 +1。
 - **commit 前先確認測試綠燈**(tests/test_roundtrip.py)。
+
+## 9. DXF → 元件(qet_import_dxf)
+
+把 CAD 圖轉成公司元件庫裡的 .elmt,**幾何一模一樣**。需要 `ezdxf`
+(`pip install ezdxf`)。
+
+- **幾何**:LWPOLYLINE/LINE/ARC/CIRCLE→`<polygon>`(曲線 flatten),
+  軸對齊 ELLIPSE 保留為 `<ellipse>`;Y 軸翻轉、以 hotspot 置中、預設 4 px/mm。
+- **端子讀自 `pin` 圖層**(關鍵):純幾何無法分辨「接線端子」與「裝飾線末端」
+  (接地符號、安裝耳都會誤判)。所以端子**只**從指定圖層抓 —— 使用者在
+  DXF 開一個 `pin` 圖層,在每個真端子位置放一個 **POINT/小圓**;旁邊的
+  **TEXT** 就是腳位號(自動配給最近端子的 `name`)。方向依所在邊自動判 n/s/e/w,
+  座標 snap 到 10px 格。**沒有 `pin` 圖層 → 建成 0 端子**(乾淨,之後在
+  QET 元件編輯器補,或補圖層重跑)。
+- **名稱與編號**:`name`(+`name_en`)寫進 `<names>`(元件庫顯示);另自動加一個
+  `dynamic_text`(text_from=ElementInfo/label),放上 folio 時顯示代號(-Z1…)。
+- **一張 DXF 多顆元件**:用 CAD 的 **BLOCK(圖塊)**。偵測到圖塊定義時自動
+  **一個 block = 一顆 .elmt**(檔名=圖塊名、hotspot=圖塊基準點),端子/腳位號
+  跟著各自圖塊的 `pin` 圖層走;沒有圖塊則整張 modelspace = 一顆(維持相容)。
+  回傳 `mode`(`blocks`/`single`)、`count`、`elements[]`。
+- **輸出位置**:預設 `elements-company/<category>/<filename>.elmt`
+  (category 預設 `control`,filename 預設 DXF 檔名;block 模式檔名取自圖塊名)。
+  存完提醒使用者在 QET **重新整理元件面板**才看得到。

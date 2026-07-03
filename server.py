@@ -33,6 +33,11 @@ QET_BINARY = Path(os.environ.get(
     "QET_BINARY", ROOT.parent / "QET-qeletrotech/build/qelectrotech.app/Contents/MacOS/qelectrotech"))
 ELEMENTS_DIR = Path(os.environ.get(
     "QET_ELEMENTS_DIR", ROOT.parent / "QET-qeletrotech/elements"))
+# user's company element collection (QET writes it here on macOS)
+COMPANY_DIR = Path(os.environ.get(
+    "QET_COMPANY_DIR",
+    Path.home() / "Library/Application Support/QElectroTech"
+    "/QElectroTech/elements-company"))
 
 PROTOCOL_VERSION = "2024-11-05"
 SERVER_INFO = {"name": "qet-mcp", "version": "0.1.0"}
@@ -588,6 +593,42 @@ def tool_generate_bom(all_folios: bool = True, folio: int = 0) -> dict:
     return {"bom": bom, "devices": len(bom), "unlabelled": unlabelled}
 
 
+def tool_import_dxf(dxf_path: str, name: str, category: str = "control",
+                    name_en: str = "", filename: str = "",
+                    pin_layer: str = "pin", scale: float = 4.0,
+                    out_path: str = "") -> dict:
+    """Convert a DXF drawing into a QET .elmt and save it into the company
+    element collection. Terminals come from the `pin_layer`; geometry from
+    the rest."""
+    try:
+        sys.path.insert(0, str(ROOT / "tools"))
+        from dxf_to_elmt import convert
+    except ImportError as e:
+        raise RuntimeError(
+            "DXF import needs the 'ezdxf' package: pip install ezdxf "
+            f"({e})")
+    if out_path:
+        out = Path(out_path)
+    else:
+        stem = filename or Path(dxf_path).stem
+        out = COMPANY_DIR / category / f"{stem}.elmt"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    res = convert(dxf_path, str(out), name=name, scale=scale,
+                  pin_layer=pin_layer, name_en=name_en or None)
+    res["dir"] = str(out.parent)
+    # a DXF with block definitions yields one element per block (named by
+    # the block); otherwise the whole drawing is one element at `out`
+    if res["mode"] == "blocks":
+        res["note"] = (f"{res['count']} block(s) → one element each in "
+                       f"{out.parent}")
+    if not any(e["pin_layer_found"] for e in res["elements"]):
+        res["note"] = (f"no '{pin_layer}' layer found — "
+                       f"element(s) built with 0 terminals; add a pin layer "
+                       "and re-import, or add terminals in QET's editor. "
+                       + res.get("note", ""))
+    return res
+
+
 def _schema(props: dict, required: "list[str]") -> dict:
     return {"type": "object", "properties": props, "required": required}
 
@@ -746,6 +787,20 @@ TOOLS = {
         "sharing a designation count as one device). Spans all folios by "
         "default.",
         _schema({"all_folios": {"type": "boolean"}, "folio": I}, [])),
+    "qet_import_dxf": (
+        tool_import_dxf, "Convert a DXF drawing into a QET .elmt element and "
+        "save it into the company collection. Reproduces the geometry exactly "
+        "(polylines/arcs/circles → polygons, axis-aligned ellipses kept). "
+        "Terminals are read from a dedicated DXF layer (default 'pin'): each "
+        "POINT/CIRCLE/short line becomes a terminal, named by the nearest "
+        "TEXT (its pin number). Without that layer the element has no "
+        "terminals. If the DXF contains block definitions, each block is "
+        "emitted as its own element (named by the block); otherwise the whole "
+        "drawing is one element. Adds a dynamic label so the designation "
+        "shows on a folio. Requires the 'ezdxf' package.",
+        _schema({"dxf_path": S, "name": S, "category": S, "name_en": S,
+                 "filename": S, "pin_layer": S, "scale": N, "out_path": S},
+                ["dxf_path", "name"])),
 }
 
 

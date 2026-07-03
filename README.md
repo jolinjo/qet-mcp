@@ -33,7 +33,7 @@ Claude Code / Claude Desktop
 | M0 | 讀懂 QET 核心類別與 XML 序列化,產出 schema 規格書 + walking skeleton | ✅ 完成 |
 | M1 | qet-xml:Python 物件模型,round-trip golden 測試 | ✅ 完成 |
 | M2 | qet-cli:headless render / validate / netlist(QET fork 0.100.6 內建 `--cli-*`) | ✅ 初版完成 |
-| M3 | MCP server:10 個低階工具(stdio,零相依)已可用;高階語意層待做 | ✅ 初版完成 |
+| M3 | MCP server:26 個工具(stdio,零相依)—— 建案/放件/佈線/自動編號/交互參照/IEC 稽核/BOM/圖框/DXF 匯入 | ✅ 完成 |
 | M4 | QET GUI 薄 RPC(reload / gotoElement),可延後 | — |
 
 ## M0 主要成果(實證,非紙上分析)
