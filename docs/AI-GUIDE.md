@@ -68,7 +68,7 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
 | `qet_netlist()` | 端子級連線 JSON,查線用 |
 | `qet_validate()` | 真 QET 引擎載入檢查 |
-| `qet_apply_titleblock(title, doc_id, subtitle, author, …)` | **畫完套公司 ISO 7200 圖框**(logo/底色/A3),一次套所有 folio。`title`=圖名(專案標題 %projecttitle,每頁一致);`subtitle`=補充圖名(每頁標題 %title) |
+| `qet_apply_titleblock(title, doc_id, subtitle, author, …, template)` | **畫完套圖框**(logo/底色/A3),一次套所有 folio。範本預設取 **QET 公司圖框集**(使用者在 QET 維護的正本),`template` 可指定名稱或檔案路徑。`title`=圖名(專案標題 %projecttitle,每頁一致);`subtitle`=補充圖名(每頁標題 %title) |
 | `qet_set_revisions(revisions)` | 填修訂歷史(累積);每筆 `{idx,date,desc,zone,by,appd}`,zone=修改座標 |
 | `qet_check_iec_compliance(folio)` | 依公司 IEC 規範稽核(81346 代號/60204-1 線號顏色/連通性),回 MUST/SHOULD findings |
 | `qet_generate_bom(all_folios, folio)` | 物料表:依代號分組(交互參照共代號者算一台) |
@@ -126,15 +126,15 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 
 ## 7. 標題欄圖框(titleblock)
 
-- 公司標準圖框:`data/titleblocks/huchen_iso7200_a3.titleblock`
-  (ISO 7200 全寬底欄,由 `tools/gen_titleblock.py` 從
-  docs/ISO7200_A3_….xlsx 生成;改版改產生器再重生,勿手改輸出檔)。
-- **陷阱:圖框文字改動會被蓋回**——`embed_titleblock()` /
-  `qet_apply_titleblock` 是無條件覆蓋內嵌範本;使用者若在 QET
-  範本編輯器改了內嵌圖框(如刪掉標籤的 `*`),下次套圖框就會還原。
-  要永久改文字必須改 `tools/gen_titleblock.py` 再重生
-  (它同時更新 data/ 正本與 QET 公司圖框集
-  `~/Library/Application Support/QElectroTech/QElectroTech/titleblocks-company/`)。
+- **範本正本 = QET 公司圖框集**
+  `~/Library/Application Support/QElectroTech/QElectroTech/titleblocks-company/`
+  (使用者在 QET 範本編輯器維護)。`qet_apply_titleblock` 預設從這裡取範本
+  (`template` 參數可指定名稱/路徑),qet-mcp **不自帶權威版本**;
+  `data/titleblocks/huchen_iso7200_a3.titleblock` 只是初始版/無公司集時的
+  fallback(由 `tools/gen_titleblock.py` 從 docs/ISO7200_A3_….xlsx 生成)。
+- **陷阱:套圖框 = 無條件覆蓋專案內嵌範本**——所以使用者改圖框文字要改
+  「公司圖框集」那份(QET 範本編輯器),不要只改專案裡內嵌的副本,
+  否則下次 `qet_apply_titleblock` 會用公司集版本蓋回去。
   2026-07:已移除三個 ISO 7200 必填星號(發行日期/文件識別號/頁次)。
 - 套用方式(qet_xml):
 
