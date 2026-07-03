@@ -34,7 +34,7 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 (`from qet_xml import QetProject`,API 與 MCP 工具一一對應),
 再用 `qet_open_project` + `qet_render` 檢視 —— 檔案優先架構,兩者可混用。
 
-## 2. 工具目錄(12 個)
+## 2. 工具目錄(23 個)
 
 | 工具 | 要點 |
 | --- | --- |
@@ -53,6 +53,7 @@ qet_netlist / qet_validate          ← 用資料驗線,不靠肉眼
 | `qet_delete_element(element)` | 刪元件 + 其相連導線 |
 | `qet_add_diagram(title)` | 加一頁 A3 folio |
 | `qet_auto_designate(prefix_map, only_unlabelled)` | 依類別字母(元件 prefix)自動配 IEC 81346 代號;預設只編無代號者,不破壞交互參照 |
+| `qet_auto_xref()` | 交互參照(IEC 61082):同代號的觸點(slave)自動連到線圈(master),QET 顯示觸點位置表。放完該設備所有部件後執行 |
 | `qet_render(folio, width)` | 回傳圖片,**畫完必自檢** |
 | `qet_netlist()` | 端子級連線 JSON,查線用 |
 | `qet_validate()` | 真 QET 引擎載入檢查 |

@@ -322,6 +322,16 @@ def tool_auto_designate(prefix_map: "dict | None" = None,
     return {"assigned": assigned, "count": len(assigned)}
 
 
+def tool_auto_xref(folio: int = 0) -> dict:
+    """Cross-reference parts sharing a designation (link each contact to
+    its coil of the same label). QET then shows the coil's contact table
+    and each contact's parent reference. Run after placing all parts."""
+    prj = _project()
+    result = prj.diagram(folio).auto_xref()
+    _save(prj)
+    return result
+
+
 def tool_list_content(folio: int = 0) -> dict:
     d = _project().diagram(folio)
     return {
@@ -636,6 +646,12 @@ TOOLS = {
         "breaking existing cross-references.",
         _schema({"prefix_map": {"type": "object"},
                  "only_unlabelled": {"type": "boolean"}, "folio": I}, [])),
+    "qet_auto_xref": (
+        tool_auto_xref, "Cross-reference (IEC 61082) parts sharing a "
+        "designation: link each slave contact to its master coil of the "
+        "same label. QET then renders the coil's contact-location table. "
+        "Run once all of a device's parts are placed.",
+        _schema({"folio": I}, [])),
     "qet_list_content": (
         tool_list_content, "List all element instances and conductors on a "
         "folio of the current project.",

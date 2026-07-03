@@ -98,6 +98,23 @@ class ToolChain(unittest.TestCase):
         self.assertEqual(r["count"], 1)
         self.assertEqual(r["assigned"][0]["label"], "-B2")  # continues past B1
 
+    def test_auto_xref_links_contacts_to_coil(self):
+        AUX = (E + "310_relays_contactors_contacts/"
+               "02_contacts_cross_referencing/01_auxiliary_contacts/"
+               "con_simple.elmt")
+        server.tool_place_element(COIL, 200, 200, label="-KM1")  # master coil
+        server.tool_place_element(AUX, 300, 200, label="-KM1")   # slave contact
+        server.tool_place_element(AUX, 400, 200, label="-KM2")   # other device
+        r = server.tool_auto_xref()
+        self.assertEqual(r["linked"], 1)   # only -KM1 has coil+contact
+        from qet_xml import QetProject
+        p = QetProject.open(self.path)
+        els = p.diagram(0).elements
+        coil = next(e for e in els if e.definition.link_type == "master")
+        contact = next(e for e in els if e.definition.link_type == "slave"
+                       and e.label == "-KM1")
+        self.assertIn(coil.uuid, contact.links)
+
     def test_titleblock_and_revisions(self):
         server.tool_place_element(CPI, 200, 200, label="-B1")
         server.tool_apply_titleblock(title="T", doc_id="HC-1", author="J")

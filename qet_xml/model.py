@@ -53,6 +53,8 @@ class ElementDefinition:
             raise ValueError(f"not an element definition: <{dom.tag}>")
         self.embed_path = embed_path          # e.g. "import/cpi.elmt"
         self.dom = dom
+        # master (coil), slave (contact) or simple — drives cross-referencing
+        self.link_type = dom.get("link_type", "simple")
         self.terminals: list[Terminal] = [
             Terminal(
                 uuid=t.get("uuid", ""),
@@ -103,13 +105,17 @@ class ElementInstance:
     def __init__(self, definition: ElementDefinition, x: float, y: float,
                  label: str = "", orientation: int = 0, prefix: str = "",
                  uuid: str | None = None,
-                 dynamic_texts_dom: ET.Element | None = None):
+                 dynamic_texts_dom: ET.Element | None = None,
+                 links: "list[str] | None" = None):
         self.definition = definition
         self.uuid = uuid or _new_uuid()
         self.x, self.y = x, y
         self.label = label
         self.orientation = orientation
         self.prefix = prefix
+        # uuids of elements this one is cross-referenced to (a slave
+        # contact points at its master coil) -> <links_uuids>
+        self.links: list[str] = links or []
         # raw <dynamic_texts> read from an existing file (preserved verbatim
         # so user-moved texts survive a round-trip); None = generate from
         # the definition's templates
@@ -151,6 +157,10 @@ class ElementInstance:
             "orientation": str(self.orientation), "z": "10",
             "prefix": self.prefix, "freezeLabel": "false",
         })
+        if self.links:
+            links_dom = ET.SubElement(e, "links_uuids")
+            for master_uuid in self.links:
+                ET.SubElement(links_dom, "link_uuid", {"uuid": master_uuid})
         infos = ET.SubElement(e, "elementInformations")
         if self.label:
             info = ET.SubElement(infos, "elementInformation",
@@ -254,7 +264,34 @@ class Diagram:
         before = len(self.conductors)
         self.conductors = [c for c in self.conductors
                            if inst.uuid not in (c.element1, c.element2)]
+        # drop cross-reference links pointing at the removed element
+        for e in self.elements:
+            if inst.uuid in e.links:
+                e.links.remove(inst.uuid)
         return before - len(self.conductors)
+
+    def auto_xref(self) -> dict:
+        """Cross-reference parts sharing a designation: link each slave
+        (contact) to the master (coil) of the same label. QET then renders
+        the coil's contact table and each contact's parent reference."""
+        by_label: "dict[str, list[ElementInstance]]" = {}
+        for e in self.elements:
+            if e.label:
+                by_label.setdefault(e.label, []).append(e)
+        linked, groups = 0, 0
+        for label, group in by_label.items():
+            masters = [e for e in group
+                       if e.definition.link_type == "master"]
+            slaves = [e for e in group if e.definition.link_type == "slave"]
+            if not (masters and slaves):
+                continue
+            groups += 1
+            master = masters[0]
+            for s in slaves:
+                if master.uuid not in s.links:
+                    s.links.append(master.uuid)
+                    linked += 1
+        return {"linked": linked, "groups": groups}
 
     # -- serialization ------------------------------------------------------
     def to_xml(self) -> ET.Element:
@@ -374,6 +411,9 @@ class QetProject:
                 if info.get("name") == "label":
                     label = info.text or ""
             dtexts = edom.find("dynamic_texts")
+            links_dom = edom.find("links_uuids")
+            links = ([lk.get("uuid", "") for lk in links_dom]
+                     if links_dom is not None else [])
             d.elements.append(ElementInstance(
                 definition,
                 x=float(edom.get("x", "0")), y=float(edom.get("y", "0")),
@@ -383,6 +423,7 @@ class QetProject:
                 uuid=edom.get("uuid"),
                 dynamic_texts_dom=(copy.deepcopy(dtexts)
                                    if dtexts is not None else None),
+                links=[u for u in links if u],
             ))
 
         conductors = ddom.find("conductors")
