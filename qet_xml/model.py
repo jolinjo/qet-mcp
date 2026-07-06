@@ -464,6 +464,10 @@ class QetProject:
                 tbts.append(copy.deepcopy(self.titleblock_templates[name]))
 
         collection = ET.SubElement(root, "collection")
+        # QET requires the "import" root category even when empty:
+        # without it, element integration (cross-project paste, drag &
+        # drop into the project) fails on the QET side.
+        ET.SubElement(collection, "category", {"name": "import"})
         for embed_path in sorted(self.collection):
             node = collection
             *dirs, filename = embed_path.split("/")
