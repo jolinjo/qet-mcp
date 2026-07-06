@@ -132,12 +132,14 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 - **範本正本 = QET 公司圖框集**
   `~/Library/Application Support/QElectroTech/QElectroTech/titleblocks-company/`
   (使用者在 QET 範本編輯器維護)。
-- **版控與版號(2026-07)**:公司元件庫(`elements-company/control/`)與公司
-  圖框集鏡像到 `ClaudeCodeDev/QET-Lib/` repo(push 到 jolinjo/QET-Lib)。
-  兩處**版號各自獨立**,顯示在:元件庫 `qet_directory` 的名稱(「虎氶科技-
-  元件庫 v0.0.1」)、圖框**檔名**(「虎氶科技-A3-橫式 v0.0.1.titleblock」,
-  name 屬性同步)。**改動任一處後**:顯示版號 +1 → rsync 到 QET-Lib →
-  中文 commit 記「動了什麼→到什麼版本」→ push。`_resolve_titleblock`
+- **版控與版號(2026-07)**:公司元件庫與公司圖框集版控於
+  `ClaudeCodeDev/QET-Lib/` repo(push 到 jolinjo/QET-Lib)。各區**版號
+  各自獨立**,顯示在:元件庫各庫 `qet_directory` 的名稱、圖框**檔名**
+  (name 屬性同步)。**改動任一處後**:顯示版號 +1 → 中文 commit 記
+  「動了什麼→到什麼版本」→ push。**分工鐵則(2026-07-06 起):AI 不動
+  QET 端**(Application Support 公司集合正本),那邊由使用者端自行同步
+  GitHub;AI 一律改 QET-Lib repo,動工前先 `git pull`。會寫 QET 端的
+  工具(qet_import_dxf 等)使用前先與使用者確認輸出位置。`_resolve_titleblock`
   預設取含 "A3" 的檔名,改名不影響;指名時要含版號。`qet_apply_titleblock` 預設從這裡取範本
   (`template` 參數可指定名稱/路徑),qet-mcp **不自帶權威版本**;
   `data/titleblocks/huchen_iso7200_a3.titleblock` 只是初始版/無公司集時的
