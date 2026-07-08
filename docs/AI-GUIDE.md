@@ -141,7 +141,9 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
   repo → GitHub,且**只在使用者明確提示時**才做(讀 QET 端 → rsync 進
   QET-Lib → 版號 +1 → commit → push);**絕不做** repo → QET 端反向
   部署。平時一律改 QET-Lib repo,動工前先 `git pull`。會寫 QET 端的
-  工具(qet_import_dxf 等)使用前先與使用者確認輸出位置。`_resolve_titleblock`
+  工具(qet_import_dxf 等)使用前先與使用者確認輸出位置。
+  **例外(2026-07-08)**:版號顯示處 AI 可自行累加,含 QET 端圖框檔名/
+  name 屬性的跳版改名;內容有動版號沒跳→兩邊一起 +1,不必再問。`_resolve_titleblock`
   預設取含 "A3" 的檔名,改名不影響;指名時要含版號。`qet_apply_titleblock` 預設從這裡取範本
   (`template` 參數可指定名稱/路徑),qet-mcp **不自帶權威版本**;
   `data/titleblocks/huchen_iso7200_a3.titleblock` 只是初始版/無公司集時的
