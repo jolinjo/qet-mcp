@@ -193,6 +193,13 @@ PLC I/O → 端子(&EMB)→ 佈置圖(&ELD)→ 零件清單(&EPB),共 9 頁。
 
 ## 8. 環境與流程注意
 
+- **陷阱(2026-07-08 事故):動使用者的 .qet 前,先確認 qet_xml 能保留
+  全部根節點**——舊版 QetProject.save 只寫 diagram/titleblocktemplates/
+  collection,把 `<properties>`、`<newdiagrams>`(內含**新頁預設圖框、
+  線號/元件自動編號規則 conductors_autonums**)整個丟掉,毀掉專案範本
+  設定。已修:extra_root_children 原樣保留+embed_titleblock 連動
+  newdiagrams/inset;有回歸測試。**存檔後仍應比對根節點清單**,
+  發現遺失就以 git 歷史版本為基準做純文字手術,不要硬用 qet_xml 重存。
 - **改了 server.py 要使用者在 /mcp reconnect(或重啟 Claude Code)才生效**;
   qet_xml 的修改則腳本立即可用(server 內建索引/資料快取除外)。
 - 檔案優先:MCP 工具每次呼叫 open→mutate→save;GUI 不會自動 reload,

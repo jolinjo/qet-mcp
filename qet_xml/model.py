@@ -333,6 +333,11 @@ class QetProject:
         self.collection: dict[str, ElementDefinition] = {}  # embed_path -> def
         # embedded titleblock templates: name -> <titleblocktemplate> element
         self.titleblock_templates: dict[str, ET.Element] = {}
+        # project-level nodes we don't model (properties, newdiagrams, ...):
+        # preserved verbatim across open/save, or QET loses user settings
+        # (new-folio defaults, autonum rules live in <newdiagrams>)
+        self.extra_root_children: list[ET.Element] = []
+        self.extra_root_attrs: dict[str, str] = {}
 
     # -- construction -------------------------------------------------------
     @classmethod
@@ -365,6 +370,11 @@ class QetProject:
         if root.tag != "project":
             raise ValueError(f"not a QET project: <{root.tag}>")
         prj = cls(root.get("title", ""), root.get("version", QET_VERSION))
+        prj.extra_root_attrs = {k: v for k, v in root.attrib.items()
+                                if k not in ("title", "version")}
+        prj.extra_root_children = [
+            copy.deepcopy(c) for c in root
+            if c.tag not in ("collection", "titleblocktemplates", "diagram")]
 
         collection = root.find("collection")
         if collection is not None:
@@ -387,6 +397,14 @@ class QetProject:
         if apply_to_diagrams:
             for d in self.diagrams:
                 d.attrs["titleblocktemplate"] = name
+        # keep the new-folio default (project properties dialog) in sync,
+        # or QET falls back to "default template" for added pages
+        for extra in self.extra_root_children:
+            if extra.tag == "newdiagrams":
+                inset = extra.find("inset")
+                if inset is not None:
+                    inset.set("titleblocktemplate", name)
+                    inset.set("titleblocktemplateCollection", "embedded")
         return name
 
     def _read_collection(self, node: ET.Element, prefix: str) -> None:
@@ -453,8 +471,11 @@ class QetProject:
             d.conductors.append(c)
 
     def to_xml(self) -> ET.Element:
-        root = ET.Element("project", {"title": self.title,
-                                      "version": self.version})
+        attrs = {"title": self.title, "version": self.version}
+        attrs.update(self.extra_root_attrs)
+        root = ET.Element("project", attrs)
+        for extra in self.extra_root_children:
+            root.append(copy.deepcopy(extra))
         for d in self.diagrams:
             root.append(d.to_xml())
 

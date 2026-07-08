@@ -111,6 +111,32 @@ class BuildFromScratch(unittest.TestCase):
         self.assertEqual(
             reopened.diagram(0).attrs.get("titleblocktemplate"), "tb_test")
 
+    def test_unmodelled_project_nodes_survive_roundtrip(self):
+        """properties/newdiagrams 等未建模節點須原樣保留(2026-07-08 事故)。"""
+        prj = QetProject.new("keep")
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "keep.qet"
+            prj.save(p)
+            text = p.read_text(encoding="utf-8")
+            text = text.replace(
+                "<diagram",
+                '<properties><property name="x" show="1">y</property>'
+                "</properties>"
+                '<newdiagrams><inset titleblocktemplate="old"/>'
+                "</newdiagrams><diagram", 1)
+            p.write_text(text, encoding="utf-8")
+
+            mid = QetProject.open(p)
+            tb = ET.Element("titleblocktemplate", {"name": "tb_new"})
+            mid.embed_titleblock(tb)  # 應連動 newdiagrams/inset
+            mid.save(p)
+
+            root = ET.parse(p).getroot()
+        self.assertIsNotNone(root.find("properties"))
+        inset = root.find("newdiagrams/inset")
+        self.assertIsNotNone(inset)
+        self.assertEqual(inset.get("titleblocktemplate"), "tb_new")
+
     def test_terminal_lookup(self):
         defn = ElementDefinition.load(CPI)
         self.assertEqual(defn.terminal("1").uuid, CPI_TERM_1)
